@@ -1,0 +1,308 @@
+[
+ {
+  "date": "batch-001",
+  "gen": "haircut",
+  "question": "haircut: NAME THIS HAIRCUT! -> Mohawk",
+  "answer": "Mohawk"
+ },
+ {
+  "date": "batch-001",
+  "gen": "likes",
+  "question": "likes: COUNT THE LIKES! -> 240",
+  "answer": "240"
+ },
+ {
+  "date": "batch-001",
+  "gen": "group_dm",
+  "question": "group_dm: COUNT THE DMs! -> 42",
+  "answer": "42"
+ },
+ {
+  "date": "batch-001",
+  "gen": "notifications",
+  "question": "notifications: WHO TEXTED FIRST? -> Sam",
+  "answer": "Sam"
+ },
+ {
+  "date": "batch-001",
+  "gen": "music_fact",
+  "question": "music_fact: MUSIC TRIVIA! -> Ed Sheeran",
+  "answer": "Ed Sheeran"
+ },
+ {
+  "date": "batch-001",
+  "gen": "lock_pattern",
+  "question": "lock_pattern: COUNT THE DOTS! -> 5",
+  "answer": "5"
+ },
+ {
+  "date": "batch-001",
+  "gen": "emoji_game",
+  "question": "emoji_game: NAME THE GAME! -> Minecraft",
+  "answer": "Minecraft"
+ },
+ {
+  "date": "batch-001",
+  "gen": "banana",
+  "question": "banana: FOOD FACTS! -> Banana",
+  "answer": "Banana"
+ },
+ {
+  "date": "batch-001",
+  "gen": "word_guess",
+  "question": "word_guess: GUESS THE 5-LETTER WORD! -> Dream",
+  "answer": "Dream"
+ },
+ {
+  "date": "batch-001",
+  "gen": "split_bill",
+  "question": "split_bill: SPLIT THE BILL! -> $12",
+  "answer": "$12"
+ },
+ {
+  "date": "batch-001",
+  "gen": "slang",
+  "question": "slang: SLANG CHECK! -> Greatest of All Time",
+  "answer": "Greatest of All Time"
+ },
+ {
+  "date": "batch-001",
+  "gen": "download",
+  "question": "download: DOWNLOAD TIME! -> 10 min",
+  "answer": "10 min"
+ },
+ {
+  "date": "batch-001",
+  "gen": "swoosh",
+  "question": "swoosh: BRAND TRIVIA! -> Nike",
+  "answer": "Nike"
+ },
+ {
+  "date": "batch-001",
+  "gen": "playlist",
+  "question": "playlist: PLAYLIST MATH! -> 40 min",
+  "answer": "40 min"
+ },
+ {
+  "date": "batch-001",
+  "gen": "coin_streak",
+  "question": "coin_streak: COIN FLIP! -> 50%",
+  "answer": "50%"
+ },
+ {
+  "date": "batch-001",
+  "gen": "afk",
+  "question": "afk: GAMER SLANG! -> Away from keyboard",
+  "answer": "Away from keyboard"
+ },
+ {
+  "date": "batch-001",
+  "gen": "streak",
+  "question": "streak: STREAK MATH! -> 80",
+  "answer": "80"
+ },
+ {
+  "date": "batch-001",
+  "gen": "rank_up",
+  "question": "rank_up: RANK UP! -> 400",
+  "answer": "400"
+ },
+ {
+  "date": "batch-001",
+  "gen": "snapchat",
+  "question": "snapchat: APP TRIVIA! -> Snapchat",
+  "answer": "Snapchat"
+ },
+ {
+  "date": "batch-001",
+  "gen": "typing",
+  "question": "typing: TYPING SPEED! -> 7 min 30 s",
+  "answer": "7 min 30 s"
+ },
+ {
+  "date": "batch-001",
+  "gen": "octopus",
+  "question": "octopus: ANIMAL FACTS! -> 3",
+  "answer": "3"
+ },
+ {
+  "date": "batch-001",
+  "gen": "emoji_meaning",
+  "question": "emoji_meaning: EMOJI CHECK! -> That's a lie",
+  "answer": "That's a lie"
+ },
+ {
+  "date": "batch-001",
+  "gen": "battery",
+  "question": "battery: BATTERY CHECK! -> 5 hours",
+  "answer": "5 hours"
+ },
+ {
+  "date": "batch-001",
+  "gen": "saturn",
+  "question": "saturn: SPACE FACT! -> Saturn",
+  "answer": "Saturn"
+ },
+ {
+  "date": "batch-001",
+  "gen": "screen_time",
+  "question": "screen_time: SCREEN TIME! -> 31 h 30 min",
+  "answer": "31 h 30 min"
+ },
+ {
+  "date": "batch-001",
+  "gen": "app_first",
+  "question": "app_first: WHICH CAME FIRST? -> YouTube",
+  "answer": "YouTube"
+ },
+ {
+  "date": "batch-001",
+  "gen": "phone_fact",
+  "question": "phone_fact: TECH HISTORY! -> An App Store",
+  "answer": "An App Store"
+ },
+ {
+  "date": "batch-001",
+  "gen": "fortnite",
+  "question": "fortnite: GAMING TRIVIA! -> 100",
+  "answer": "100"
+ },
+ {
+  "date": "batch-001",
+  "gen": "gif",
+  "question": "gif: INTERNET TRIVIA! -> Graphics Interchange Format",
+  "answer": "Graphics Interchange Format"
+ },
+ {
+  "date": "batch-001",
+  "gen": "sunlight",
+  "question": "sunlight: SCIENCE FACT! -> 8 minutes",
+  "answer": "8 minutes"
+ },
+ {
+  "date": "2026-10-29",
+  "gen": "d29_spotify",
+  "question": "d29_spotify: APP TRIVIA! -> Green",
+  "answer": "Green"
+ },
+ {
+  "date": "2026-10-29",
+  "gen": "d29_pizza_slices",
+  "question": "d29_pizza_slices: PIZZA MATH! -> 3",
+  "answer": "3"
+ },
+ {
+  "date": "2026-10-29",
+  "gen": "d29_honey",
+  "question": "d29_honey: FOOD FACT! -> Honey",
+  "answer": "Honey"
+ },
+ {
+  "date": "2026-10-29",
+  "gen": "d29_minecraft_blocks",
+  "question": "d29_minecraft_blocks: GAMER MATH! -> 3",
+  "answer": "3"
+ },
+ {
+  "date": "2026-10-29",
+  "gen": "d29_lol",
+  "question": "d29_lol: SLANG CHECK! -> In real life",
+  "answer": "In real life"
+ },
+ {
+  "date": "2026-10-29",
+  "gen": "d29_shark",
+  "question": "d29_shark: ANIMAL FACT! -> Sharks",
+  "answer": "Sharks"
+ },
+ {
+  "date": "2026-10-29",
+  "gen": "d29_ps",
+  "question": "d29_ps: GAMING TRIVIA! -> Star",
+  "answer": "Star"
+ },
+ {
+  "date": "2026-10-29",
+  "gen": "d29_sub",
+  "question": "d29_sub: SUB COUNT! -> 8",
+  "answer": "8"
+ },
+ {
+  "date": "2026-10-29",
+  "gen": "d29_eiffel",
+  "question": "d29_eiffel: SCIENCE FACT! -> The metal expands",
+  "answer": "The metal expands"
+ },
+ {
+  "date": "2026-10-29",
+  "gen": "d29_bitrate",
+  "question": "d29_bitrate: FRAME COUNT! -> 1800",
+  "answer": "1800"
+ },
+ {
+  "date": "2026-10-29",
+  "gen": "d29_hello",
+  "question": "d29_hello: LANGUAGE TRIVIA! -> Spanish",
+  "answer": "Spanish"
+ },
+ {
+  "date": "2026-10-29",
+  "gen": "d29_week",
+  "question": "d29_week: THINK FAST! -> 18",
+  "answer": "18"
+ },
+ {
+  "date": "2026-10-29",
+  "gen": "d29_moon",
+  "question": "d29_moon: SPACE FACT! -> About 1.3 million",
+  "answer": "About 1.3 million"
+ },
+ {
+  "date": "2026-10-29",
+  "gen": "d29_battery2",
+  "question": "d29_battery2: BATTERY MATH! -> 24 h",
+  "answer": "24 h"
+ },
+ {
+  "date": "2026-10-29",
+  "gen": "d29_strawberry",
+  "question": "d29_strawberry: FOOD FACT! -> About 200",
+  "answer": "About 200"
+ },
+ {
+  "date": "2026-10-29",
+  "gen": "d29_emoji_most",
+  "question": "d29_emoji_most: EMOJI TRIVIA! -> Laughing-crying face",
+  "answer": "Laughing-crying face"
+ },
+ {
+  "date": "2026-10-29",
+  "gen": "d29_sneaker",
+  "question": "d29_sneaker: SALE MATH! -> $80",
+  "answer": "$80"
+ },
+ {
+  "date": "2026-10-29",
+  "gen": "d29_brain",
+  "question": "d29_brain: BODY FACT! -> 20%",
+  "answer": "20%"
+ },
+ {
+  "date": "2026-10-29",
+  "gen": "d29_yt",
+  "question": "d29_yt: INTERNET HISTORY! -> A zoo",
+  "answer": "A zoo"
+ },
+ {
+  "date": "2026-10-29",
+  "gen": "d29_wifi",
+  "question": "d29_wifi: WI-FI PUZZLE! -> 12",
+  "answer": "12"
+ },
+ {
+  "date": "2026-10-29",
+  "gen": "d29_clock",
+  "question": "d29_clock: TRICK QUESTION! -> 7.5°",
+  "answer": "7.5°"
+ }
+]
