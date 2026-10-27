@@ -1,4 +1,4 @@
-"""Render one day's real-news Shorts (max 2 per day, 2-3 real stories each, engine news3.py).
+"""Render one day's real-news Shorts (max 2 per day, 2-3 real stories each, engine news4.py "The Noggin Times").
 
 Usage:  python3 make_news.py days/news_YYYY_MM_DD.py YYYY-MM-DD
 The day module defines NEWS = [ dict(title=<YouTube title>, items=[...3 items as in news2.py...], description=<text>), ... ]
@@ -9,7 +9,8 @@ and saves a check sheet of key frames to /tmp/news_check_<date>.png.
 """
 import json, os, re, subprocess, sys
 HERE = os.path.dirname(os.path.abspath(__file__)); sys.path.insert(0, HERE)
-import news2, news3
+import glob, datetime
+import news2, news3, news4
 
 def norm(t): return re.sub(r"[^a-z0-9 ]", "", t.lower()).strip()
 
@@ -33,7 +34,10 @@ if __name__ == "__main__":
             seen.add(norm(it["text"])); seen.add(link)
             new.append(dict(date=date, text=it["text"], real=it["real"], link=link))
         fn = f"news-{n}.mp4"; mp4 = os.path.join(out, fn); wav = mp4 + ".wav"
-        news3.make_audio(items, wav); segs, total = news3.make_video(items, mp4, wav, v.get("hook")); os.remove(wav)
+        issue = 1 + sum(len(json.load(open(m))) for m in glob.glob(os.path.join(HERE, "..", "videos", "*", "news_manifest.json"))
+                        if os.path.dirname(m) != os.path.abspath(out)) + (n - 1)
+        dtxt = datetime.date.fromisoformat(date).strftime("%A, %B %d, %Y").replace(" 0", " ")
+        news4.make_audio(items, wav); segs, total = news4.make_video(items, mp4, wav, v.get("hook"), issue, dtxt); os.remove(wav)
         for s in segs:
             for tt in (s["start"] + 0.8, s["explain"] - 0.5, s["explain"] + 1.5):
                 frames.append((mp4, tt))

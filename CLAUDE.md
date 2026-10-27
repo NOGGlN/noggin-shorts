@@ -47,10 +47,13 @@ Never more than 4 Shorts a day in total. Posts with draft=true don't count.
 
 
 ## News job (real stories only) - run by the "Noggin daily news" scheduled task
-Engine: `engine/news3.py` (look + sound) and `engine/make_news.py` (renders a day). Sample: `engine/days/news_sample3.py`.
-NO quiz, NO fake headlines, NO voting. Each video = 2-3 REAL stories: photo + punchy headline, then "WHAT HAPPENED" (1-2 sentences)
-with the verified source. Ends "Which one is the craziest? Comment 1, 2 or 3". Dark modern look, ambient bed, no song, no ticks.
-(news2.py = old Real-or-Fake format, not used any more.)
+Format: **"The Noggin Times"** - a retro newspaper look made for Gen Z's analog/print revival trend: paper texture and grain,
+Fraktur masthead, Times-style headlines, typewriter labels, halftone black-and-white photos with tape corners, red "EXTRA!" stamp
+on the first story, page-turn transitions, "Letters to the Editor" ending. Engine: `engine/news4.py`; `engine/make_news.py` renders
+a day (it numbers the issues and prints the publish date on the masthead). Sample: `engine/days/news_sample3.py`.
+NO quiz, NO fake headlines, NO voting. Each video = 2-3 REAL stories: photo + headline, then the article (1-2 sentences, drop cap)
+with the verified source. Sound: ambient bed + paper rustles + stamp thuds, no song, no ticks.
+(news2.py = old Real-or-Fake format, news3.py = old dark modern look; neither is used any more.)
 
 1. **Target day:** Metricool `getScheduledPosts` (brand 7672444, Europe/Lisbon) from tomorrow to +7 days. Earliest day where the
    10:00 and/or 16:00 slot has no non-draft YouTube post. Make 1 video per free news slot (max 2). Nothing free -> report "nothing to do".
@@ -80,7 +83,7 @@ with the verified source. Ends "Which one is the craziest? Comment 1, 2 or 3". D
 4. **Day file** `engine/days/news_YYYY_MM_DD.py` with
    `NEWS = [dict(title=..., hook=..., items=[2-3 items], description=...), ...]`. Items exactly like news_sample3.py (text, detail, photo,
    credit, optional explain_photo/explain_credit, source with outlet/date/headline/url/link). hook = on-screen opener, e.g.
-   "3 things that actually happened this week". Title: curiosity hook under 60 chars, one emoji, e.g. "This really happened this week 😳 #shorts".
+   "3 things that actually happened this week". Title: curiosity hook under 60 chars, one emoji, e.g. "This really happened this week 📰 #shorts".
    Description: one hook line, then "Sources:" with outlet + full link for every real story, then "Photos (Wikimedia Commons):" credits,
    then `#shorts #news #crazynews #didyouknow #noggin`.
 5. **Render:** `cd engine && python3 make_news.py days/news_YYYY_MM_DD.py YYYY-MM-DD`, then open `/tmp/news_check_YYYY-MM-DD.png` with Read
