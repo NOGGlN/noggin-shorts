@@ -84,13 +84,21 @@ Right column on every page: "IN BRIEF" sidebar with 3-5 short real items (see st
    - also good: movie/series/game releases, concerts and tour announcements, money (prices going up/down), space launches, weather records.
    Each item: `dict(cat=, title= (under ~10 words), text= (1-2 short sentences), price= (optional, e.g. "Price: $135" or
    "Out: Nov 7"), photo="assets/photos/<date>/<name>.jpg", credit="What it shows | Author / License",
-   source=dict(outlet=, date="Oct 27", link=full URL))`. EVERY brief gets a photo of its object (the car, the shoe, the perfume,
-   the F1 car, the parliament building, the school...). Use the closest free photo on Commons and say honestly what it shows in the
-   credit (e.g. "Earlier prototype", "A Nike Dunk Low", "Mercedes W16, 2025") if it is not the exact new product. Confirm every item by fetching the article (trusted news
+   source=dict(outlet=, date="Oct 27", link=full URL))`. EVERY brief gets an ACCURATE photo of the exact thing it is about
+   (the exact new car, the exact shoe colourway, the exact perfume bottle, this season's F1 car, the real building...).
+   Where to get it, in this order:
+     a) Wikimedia Commons, if an exact recent photo exists (search with `gsrsort=create_timestamp_desc`; e.g. this season's F1 car).
+     b) For brand-new products: the BRAND'S OWN official photo, from its own product/launch page or official press/newsroom page
+        (e.g. tesla.com/roadster, nike.com/launch, apple.com/newsroom, the perfume house's own site). Credit it "Image: <Brand>".
+        The owner approved this ONLY as long as it can't hurt the channel's income, so: never photos from photo agencies or wires
+        (Getty, AP, Reuters, Shutterstock, Alamy), never photos taken by blogs/magazines/retailers' own photographers, never
+        screenshots of other videos, never photos of real people from brand sites. Brand product shots only.
+     c) If no exact photo exists in a) or b), pick a different brief that has one. Don't use a "similar" stand-in photo.
+   Each new site needs a one-time browser approval (Claude_Browser__request_access, scope "site"); if it is refused, use another brief. Confirm every item by fetching the article (trusted news
    outlets, or for product drops: official brand pages, Vogue, GQ, Complex, Hypebeast, Highsnobiety, Sole Retriever, The Verge).
    Prices and dates must match the source exactly. No deaths, crime, disasters or war in briefs either.
-3. **Photos** (one per headline, optional explain_photo, plus one per brief): only free-license photos from Wikimedia Commons
-   (includes NASA). Never news photos, never real people's faces as the subject, never a logo on its own (a product showing its own
+3. **Photos** (one per headline, optional explain_photo, plus one per brief - for briefs see the order of sources in 2b):
+   main-story photos only from free-license Wikimedia Commons (includes NASA). Never news photos, never real people's faces as the subject, never a logo on its own (a product showing its own
    branding is fine). The cloud workspace can't reach Commons, so use the BUILT-IN browser on the
    owner's computer (load tools with ToolSearch "mcp__remote-devices__Claude_Browser__", max_results 64; commons.wikimedia.org is
    already allowed). In a Commons tab, run javascript: query the API

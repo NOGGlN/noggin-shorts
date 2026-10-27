@@ -178,6 +178,17 @@ def draw_sidebar(page, briefs, y0, y1):
             if x[0] == "PHOTO":
                 if not b.get("photo"): continue
                 src_im = load_photo(b["photo"])
+                g_ = ImageOps.grayscale(src_im); bgv = g_.getpixel((2, 2))
+                if bgv > 225:   # product shot on a white background: trim the empty space around the product
+                    bb_ = g_.point(lambda v: 255 if v < bgv - 18 else 0).getbbox()
+                    if bb_:
+                        pad = 0.08; w_, h_ = bb_[2] - bb_[0], bb_[3] - bb_[1]
+                        src_im = src_im.crop((max(0, int(bb_[0] - w_*pad)), max(0, int(bb_[1] - h_*pad)),
+                                              min(src_im.width, int(bb_[2] + w_*pad)), min(src_im.height, int(bb_[3] + h_*pad))))
+                        if src_im.width/src_im.height > SB_W/ph:   # pad to the box shape instead of cutting the product
+                            c = Image.new("RGB", (src_im.width, int(src_im.width*ph/SB_W)), (bgv,)*3); c.paste(src_im, (0, (c.height - src_im.height)//2)); src_im = c
+                        else:
+                            c = Image.new("RGB", (int(src_im.height*SB_W/ph), src_im.height), (bgv,)*3); c.paste(src_im, ((c.width - src_im.width)//2, 0)); src_im = c
                 if src_im.height > src_im.width:   # tall photo (e.g. a shoe): show it whole on paper instead of cropping
                     c = Image.new("RGB", (SB_W*2, ph*2), (232, 226, 210)); t_ = ImageOps.contain(src_im, (SB_W*2 - 20, ph*2 - 20))
                     c.paste(t_, ((c.width - t_.width)//2, (c.height - t_.height)//2)); src_im = c
