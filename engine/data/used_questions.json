@@ -304,5 +304,23 @@
   "gen": "d29_clock",
   "question": "d29_clock: TRICK QUESTION! -> 7.5°",
   "answer": "7.5°"
+ },
+ {
+  "date": "2026-10-31",
+  "gen": "d1031_candy_share",
+  "question": "d1031_candy_share: CANDY MATH! -> 12",
+  "answer": "12"
+ },
+ {
+  "date": "2026-10-31",
+  "gen": "d1031_haunted_tours",
+  "question": "d1031_haunted_tours: SPOOKY TIMING! -> 7:00 PM",
+  "answer": "7:00 PM"
+ },
+ {
+  "date": "2026-10-31",
+  "gen": "d1031_witch_hat",
+  "question": "d1031_witch_hat: TRICK OR TREAT! -> $0.50",
+  "answer": "$0.50"
  }
 ]

@@ -14,10 +14,11 @@ from multiprocessing import Pool
 
 HERE = os.path.dirname(os.path.abspath(__file__)); sys.path.insert(0, HERE)
 import v5
-v5.LIMITS = [8.5, 8.5, 7.0]
+v5.LIMITS = [8.5, 8.5, 7.0]; v5.HOOK_FIRST = True
 from puzzles8 import tag
 
-HOOKS = ["ONLY 2% REACH", "99% FAIL AT", "NOBODY PASSES", "CAN YOU BEAT", "ONLY GENIUSES PASS", "YOU WON'T REACH"]
+# hook line shown over the level-1 question from frame 0 (no intro card). A day file may set HOOK_LINES = [one per video].
+HOOKS = ["99% FAIL LEVEL 3", "ONLY 1 IN 10 GETS THIS", "ONLY 2% REACH LEVEL 3", "NOBODY PASSES LEVEL 3", "BET YOU MISS LEVEL 3"]
 DESC = ("3 levels: Easy 8.5s, Medium 8.5s, Hard 7s. Keep score and comment it 👇 Did Noggin distract you? 🍅\n\n"
         "#shorts #puzzle #trivia #brainteaser #quiz #genz #noggin #brainteasers")
 
@@ -44,7 +45,8 @@ def build(day, v, seed):
 
 def job(args):
     path, date, v, seed, out = args
-    day = load(path); v5.LIMITS = [8.5, 8.5, 7.0]; v5.HOOK_LINE = HOOKS[(v + seed) % len(HOOKS)]
+    day = load(path); v5.LIMITS = [8.5, 8.5, 7.0]; v5.HOOK_FIRST = True
+    v5.HOOK_LINE = day.HOOK_LINES[v - 1] if hasattr(day, "HOOK_LINES") else HOOKS[(v + seed) % len(HOOKS)]
     ps = build(day, v, seed); fn = f"{v:02d}-{slug(day.PLAN[v - 1][1])}.mp4"; wav = f"/tmp/noggin_{date}_{v}.wav"
     v5.make_sfx(ps, wav); v5.make_video(ps, os.path.join(out, fn), wav); os.remove(wav)
     return v, fn, [P["options"][P["correct"]] for P in ps]

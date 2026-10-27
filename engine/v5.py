@@ -31,16 +31,18 @@ def level_bar(cur, pulse=0.0):
     return im
 HOOK_LINE = "ONLY 2% REACH"
 HOOK, INTRO, REV, OUTRO = 1.9, 0.7, 2.1, 2.2
+HOOK_FIRST = False   # True: no hook/intro card, level-1 question is on screen from frame 0 with the hook line on top
+def _h0(): return 0.0 if HOOK_FIRST else HOOK
 INTRO_TXT = ["warm up...", "getting spicy", "IMPOSSIBLE lol"]
 TAUNT = [["sooo easy", "I know it already"], ["faster!!"], ["tick tock..."], ["HURRY!!!"]]
 PRE_TAUNT = {"WATCH THE BALL!": "eyes on the ball!", "MEMORIZE!": "remember them!"}
 
 def build_timeline(puzzles):
-    segs = []; t = HOOK
+    segs = []; t = _h0()
     for i, (L, P) in enumerate(zip(LIMITS, puzzles)):
-        pre = P.get("pre", 0.0)
-        sg = dict(i=i, intro=t, pstart=t + INTRO, start=t + INTRO + pre, reveal=t + INTRO + pre + L,
-                  end=t + INTRO + pre + L + REV, pre=pre); t = sg["end"]
+        pre = P.get("pre", 0.0); IN = 0.0 if (HOOK_FIRST and i == 0) else INTRO
+        sg = dict(i=i, intro=t, pstart=t + IN, start=t + IN + pre, reveal=t + IN + pre + L,
+                  end=t + IN + pre + L + REV, pre=pre); t = sg["end"]
         side = 190 if i % 2 == 0 else 890
         mode = P.get("throw") if i <= 1 else None   # hard/genius: no tomatoes at all
         tt = sg["start"] + max(0.75, L*0.33)
@@ -59,7 +61,7 @@ def build_timeline(puzzles):
 
 def mascot_state(t, segs, total, puzzles):
     blink = (t % 2.7) < 0.12
-    if t < HOOK:
+    if t < _h0():
         k = ease_back(t/0.4); y = 1890 + (1 - k)*600
         return 540, y, 1.45, ("laugh" if 1.1 < t else "idle"), (0, -1), False, ("you won't." if t > 0.5 else None), blink
     for sg in segs:
@@ -187,11 +189,12 @@ def make_video(puzzles, out, sfx):
     ff = subprocess.Popen(cmd, stdin=subprocess.PIPE)
     for f in range(NF):
         t = f/FPS
-        sg = next((s for s in segs if t < s["end"]), None) if t >= HOOK else None
-        li = sg["i"] if sg else (2 if t >= HOOK else -1)
+        H0 = _h0()
+        sg = next((s for s in segs if t < s["end"]), None) if t >= H0 else None
+        li = sg["i"] if sg else (2 if t >= H0 else -1)
         # ---- background: gradient + drifting translucent shapes
-        if t < HOOK: bg = bgs[-1]
-        elif sg and t < sg["intro"] + 0.35:
+        if t < H0: bg = bgs[-1]
+        elif sg and t < sg["intro"] + 0.35 and not (HOOK_FIRST and sg["i"] == 0):
             prev = bgs[-1] if sg["i"] == 0 else bgs[sg["i"] - 1]; bg = Image.blend(prev, bgs[sg["i"]], (t - sg["intro"])/0.35)
         else: bg = bgs[li]
         fr = bg.copy()
@@ -199,10 +202,10 @@ def make_video(puzzles, out, sfx):
             y = (sp["y"] - sp["vy"]*t) % (H + 200) - 100; x = sp["x"] + sp["amp"]*math.sin(t*0.8 + sp["ph"])
             fr.alpha_composite(sp["im"], (int(x), int(y)))
         # ---- level bar
-        cur, pulse = (min(2, int(t/0.3)), 0) if t < HOOK else (li, (math.sin(t*2*math.pi*2.2) + 1)/2)
+        cur, pulse = (min(2, int(t/0.3)), 0) if t < H0 else (li, (math.sin(t*2*math.pi*2.2) + 1)/2)
         fr.alpha_composite(bar(cur, pulse), (40, 25))
         # ---- content
-        if t < HOOK:
+        if t < H0:
             for k in range(len(segs)):  # teaser: the puzzles fanned out behind the hook text
                 kk = ease_back((t - 0.06*k)/0.4)
                 if kk <= 0: continue
@@ -224,10 +227,15 @@ def make_video(puzzles, out, sfx):
             paste_center(fr, with_alpha(sg["sub"], min(1, max(0, (lt - 0.15)/0.25))), 540, 1010)
         else:
             P = puzzles[li]; pt = t - sg["pstart"]; st = t - sg["start"]; rev = t >= sg["reveal"]; rt = t - sg["reveal"]
-            in_pre = t < sg["start"]
-            qa = ease_out(pt/0.25); paste_center(fr, with_alpha(sg["qt"], qa), 540, 300 - 40*(1 - qa))
+            in_pre = t < sg["start"]; hf = HOOK_FIRST and li == 0; pa = pt + (1.0 if hf else 0)
+            qa = ease_out(pa/0.25)
+            if hf and pt < 2.65:   # hook line sits where the header goes, shrinks away, then the header pops in
+                hk = (1 + 0.04*math.sin(t*9)) if pt < 2.5 else max(0.01, 1 - (pt - 2.5)/0.15)
+                paste_center(fr, scaled(hook1, hk), 540, 300)
+            elif hf and pt < 3.0: paste_center(fr, scaled(sg["qt"], max(0.01, ease_back((pt - 2.65)/0.35))), 540, 300)
+            else: paste_center(fr, with_alpha(sg["qt"], qa), 540, 300 - 40*(1 - qa))
             # card: slide in from right, out to left at the very end
-            k_in = ease_back(pt/0.45); k_out = ease_out((t - (sg["end"] - 0.32))/0.32) if t > sg["end"] - 0.32 else 0
+            k_in = ease_back(pa/0.45); k_out = ease_out((t - (sg["end"] - 0.32))/0.32) if t > sg["end"] - 0.32 else 0
             cx = CX + (1 - k_in)*900 - k_out*1000; rotd = (1 - k_in)*-8 + k_out*6
             if in_pre: L = card_layer(P["anim"](pt))
             elif not rev: L = sg["cq"]
@@ -306,7 +314,7 @@ def make_video(puzzles, out, sfx):
         rgb = fr.convert("RGB")
         if sg is not None and t >= sg["reveal"] and t - sg["reveal"] < 0.2:
             rgb = Image.blend(rgb, Image.new("RGB", (W, H), (255, 255, 255)), 0.45*(1 - (t - sg["reveal"])/0.2))
-        if t < 0.12: rgb = Image.blend(rgb, Image.new("RGB", (W, H), (255, 255, 255)), 0.7*(1 - t/0.12))
+        if t < 0.12 and not HOOK_FIRST: rgb = Image.blend(rgb, Image.new("RGB", (W, H), (255, 255, 255)), 0.7*(1 - t/0.12))
         if shake != (0, 0):
             sh = Image.new("RGB", (W, H)); sh.paste(rgb, shake); rgb = sh
         ff.stdin.write(rgb.tobytes())
@@ -355,7 +363,8 @@ def make_sfx(puzzles, path):
     def heartbeat(t):
         for d_, g in ((0, 0.55), (0.16, 0.4)):
             x = tt_(0.18); add(g*np.sin(2*np.pi*(55 + 30*np.exp(-x*30))*x)*env(len(x), 0.05), t + d_)
-    hit(0.0); pop(0.05); riser(0.25, 0.6); hit(0.85); laugh(1.1)
+    hit(0.0); pop(0.05)
+    if not HOOK_FIRST: riser(0.25, 0.6); hit(0.85); laugh(1.1)
     for k in range(4): pop(0.05 + 0.05*k, 0.3)
     for sg in segs:
         i = sg["i"]; P = puzzles[i]; whoosh(sg["intro"], 0.45, 0.6); pop(sg["intro"] + 0.1)
