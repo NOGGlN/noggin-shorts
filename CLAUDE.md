@@ -83,11 +83,15 @@ Right column on every page: "IN BRIEF" sidebar with 3-5 short real items (see st
    - STRIKES / SCHOOL: strikes, school holidays, exam dates, transport strikes (Portugal and Europe are good: the owner is in Portugal).
    - also good: movie/series/game releases, concerts and tour announcements, money (prices going up/down), space launches, weather records.
    Each item: `dict(cat=, title= (under ~10 words), text= (1-2 short sentences), price= (optional, e.g. "Price: $135" or
-   "Out: Nov 7"), source=dict(outlet=, date="Oct 27", link=full URL))`. Confirm every item by fetching the article (trusted news
+   "Out: Nov 7"), photo="assets/photos/<date>/<name>.jpg", credit="What it shows | Author / License",
+   source=dict(outlet=, date="Oct 27", link=full URL))`. EVERY brief gets a photo of its object (the car, the shoe, the perfume,
+   the F1 car, the parliament building, the school...). Use the closest free photo on Commons and say honestly what it shows in the
+   credit (e.g. "Earlier prototype", "A Nike Dunk Low", "Mercedes W16, 2025") if it is not the exact new product. Confirm every item by fetching the article (trusted news
    outlets, or for product drops: official brand pages, Vogue, GQ, Complex, Hypebeast, Highsnobiety, Sole Retriever, The Verge).
    Prices and dates must match the source exactly. No deaths, crime, disasters or war in briefs either.
-3. **Photos** (one per headline, optional explain_photo): only free-license photos from Wikimedia Commons (includes NASA).
-   Never news photos, never real people's faces, never logos. The cloud workspace can't reach Commons, so use the BUILT-IN browser on the
+3. **Photos** (one per headline, optional explain_photo, plus one per brief): only free-license photos from Wikimedia Commons
+   (includes NASA). Never news photos, never real people's faces as the subject, never a logo on its own (a product showing its own
+   branding is fine). The cloud workspace can't reach Commons, so use the BUILT-IN browser on the
    owner's computer (load tools with ToolSearch "mcp__remote-devices__Claude_Browser__", max_results 64; commons.wikimedia.org is
    already allowed). In a Commons tab, run javascript: query the API
    (`https://commons.wikimedia.org/w/api.php?action=query&format=json&origin=*&generator=search&gsrnamespace=6&gsrsearch=<q> filetype:bitmap&prop=imageinfo&iiprop=url|size|extmetadata&iiurlwidth=1280`),

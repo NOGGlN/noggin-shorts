@@ -144,27 +144,54 @@ def footer(page, txt):
 
 SB_W = 300; MAIN_W = W - 120 - SB_W - 34      # main column / sidebar widths when briefs are shown
 
+def _brief_blocks(b, tsz, bsz):
+    blk = [("type", 22, RED, [b["cat"].upper()], 28)]
+    f, ls, lh = fit_lines(b["title"], "head", SB_W, 150, tsz, lh=1.12, minsz=24); blk.append(("head", f.size, INK, ls, lh)); blk.append(("type", 8, INK, [""], 8))
+    blk.append(("PHOTO",))
+    fb = F("body", bsz); blk.append(("body", bsz, INK, wrap(b["text"], fb, SB_W), int(bsz*1.17)))
+    if b.get("price"): blk.append(("type", bsz, INK, wrap(b["price"], F("type", bsz), SB_W), int(bsz*1.25)))
+    src = b["source"]; blk.append(("ital", 18, GREY, wrap(f"Source: {src['outlet']}, {src['date']}", F("ital", 18), SB_W), 22))
+    return blk
+
+def _blocks_h(blk, ph):
+    return sum((ph + 10) if x[0] == "PHOTO" else len(x[3])*x[4] for x in blk)
+
 def draw_sidebar(page, briefs, y0, y1):
-    """'IN BRIEF' column: launches, drops, sport, votes, strikes... each with price/date and a tiny source line."""
+    """'IN BRIEF' column: launches, drops, sport, votes, strikes... each with a small halftone photo, price/date, tiny source line.
+    Shrinks photos and type until everything fits; drops the last items only if it still can't fit."""
     d = ImageDraw.Draw(page); x0 = W - 60 - SB_W
     d.line((x0 - 17, y0, x0 - 17, y1), fill=INK, width=2)
     d.rectangle((x0, y0, x0 + SB_W, y0 + 54), fill=INK)
     d.text((x0 + SB_W/2, y0 + 27), "IN BRIEF", font=F("head", 36), fill=PAPER, anchor="mm")
-    y = y0 + 74; gap = 18
-    for k, b in enumerate(briefs):
-        blk = []
-        blk.append(("type", 22, RED, [b["cat"].upper()], 28))
-        f, ls, lh = fit_lines(b["title"], "head", SB_W, 140, 33, lh=1.06, minsz=26); blk.append(("head", f.size, INK, ls, lh))
-        fb = F("body", 24); blk.append(("body", 24, INK, wrap(b["text"], fb, SB_W), 28))
-        if b.get("price"): blk.append(("type", 24, INK, wrap(b["price"], F("type", 24), SB_W), 30))
-        src = b["source"]; blk.append(("ital", 19, GREY, wrap(f"Source: {src['outlet']}, {src['date']}", F("ital", 19), SB_W), 23))
-        h = sum(len(ls)*lh for _, _, _, ls, lh in blk) + 10
-        if y + h > y1: break
-        for name, sz, col, ls, lh in blk:
+    top = y0 + 74; gap = 26; avail = y1 - top
+    items = list(briefs)
+    while items:
+        for ph, tsz, bsz in ((170, 33, 24), (150, 31, 23), (130, 30, 22), (112, 28, 21), (96, 27, 20), (80, 26, 20)):
+            blks = [_brief_blocks(b, tsz, bsz) for b in items]
+            if sum(_blocks_h(x, ph if b.get("photo") else -10) for x, b in zip(blks, items)) + gap*(len(items) - 1) <= avail: break
+        else:
+            items = items[:-1]; continue
+        break
+    y = top
+    for k, (b, blk) in enumerate(zip(items, blks)):
+        for x in blk:
+            if x[0] == "PHOTO":
+                if not b.get("photo"): continue
+                src_im = load_photo(b["photo"])
+                if src_im.height > src_im.width:   # tall photo (e.g. a shoe): show it whole on paper instead of cropping
+                    c = Image.new("RGB", (SB_W*2, ph*2), (232, 226, 210)); t_ = ImageOps.contain(src_im, (SB_W*2 - 20, ph*2 - 20))
+                    c.paste(t_, ((c.width - t_.width)//2, (c.height - t_.height)//2)); src_im = c
+                pic = halftone(src_im, (SB_W, ph), cell=4)
+                page.alpha_composite(pic, (x0, y)); d.rectangle((x0, y, x0 + SB_W - 1, y + ph - 1), outline=INK, width=2)
+                if b.get("credit"):
+                    cf = F("ital", 13); tw = MEAS.textlength(b["credit"], font=cf)
+                    d.rectangle((x0 + SB_W - tw - 10, y + ph - 20, x0 + SB_W - 2, y + ph - 2), fill=PAPER)
+                    d.text((x0 + SB_W - 6, y + ph - 4), b["credit"], font=cf, fill=GREY, anchor="rs")
+                y += ph + 10; continue
+            name, sz, col, ls, lh = x
             for l in ls: d.text((x0, y), l, font=F(name, sz), fill=col); y += lh
-        y += gap
-        if k < len(briefs) - 1 and y + 30 < y1:
-            d.line((x0, y - gap/2, x0 + SB_W, y - gap/2), fill=INK, width=1); y += 6
+        if k < len(items) - 1:
+            d.line((x0, y + gap/2 - 4, x0 + SB_W, y + gap/2 - 4), fill=INK, width=1); y += gap
 
 class Story:
     def __init__(self, it, i, n, paper, issue_no, date_txt, briefs=None):
@@ -232,7 +259,7 @@ class Story:
         page.alpha_composite(sh.filter(ImageFilter.GaussianBlur(9)), (60 - 20, self.py - 20))
         page.alpha_composite(pic, (60, self.py))
         d = ImageDraw.Draw(page); d.rectangle((60, self.py, 60 + self.pw - 1, self.py + ph - 1), outline=INK, width=3)
-        page.alpha_composite(self.t1, (60 - 55, self.py - 40)); page.alpha_composite(self.t2, (60 + self.pw - self.t2.width + 55, self.py - 40))
+        page.alpha_composite(self.t1, (60 - 55, self.py - 40)); page.alpha_composite(self.t2, (60 + self.pw - self.t2.width + (55 if not self.briefs else 12), self.py - 40))
         cap = self.it["explain_credit"] if (self.ht2 is not None and t >= s["explain"]) else self.it["credit"]
         d.text((60, self.py + ph + 10), "PHOTO: " + cap, font=F("ital", 21 if self.briefs else 24), fill=GREY)
         if ex > 0:
