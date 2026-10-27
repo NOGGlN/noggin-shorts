@@ -204,6 +204,13 @@ def draw_sidebar(page, briefs, y0, y1):
         if k < len(items) - 1:
             d.line((x0, y + gap/2 - 4, x0 + SB_W, y + gap/2 - 4), fill=INK, width=1); y += gap
 
+def briefs_for_pages(briefs, n):
+    """briefs can be one list (same sidebar on every page) or a list of lists (a different sidebar on each story page)."""
+    if not briefs: return [None]*n
+    if isinstance(briefs[0], (list, tuple)):
+        return [list(briefs[i]) if i < len(briefs) else list(briefs[-1]) for i in range(n)]
+    return [briefs]*n
+
 class Story:
     def __init__(self, it, i, n, paper, issue_no, date_txt, briefs=None):
         self.it = it; self.i = i; self.n = n; self.briefs = briefs or []
@@ -298,7 +305,8 @@ def make_video(items, out, wav, hook_txt=None, issue_no=1, date_txt=None, briefs
     segs, total = timeline(items); NF = int(round(total*FPS))
     date_txt = date_txt or datetime.date.today().strftime("%A, %B %d, %Y").replace(" 0", " ")
     paper = make_paper(); grains = grain_layers()
-    stories = [Story(it, i, len(items), paper, issue_no, date_txt, briefs) for i, it in enumerate(items)]
+    per_page = briefs_for_pages(briefs, len(items))
+    stories = [Story(it, i, len(items), paper, issue_no, date_txt, per_page[i]) for i, it in enumerate(items)]
     extra = stamp("EXTRA!", 150, ang=-9); hook_line = None
     if hook_txt:
         f = F("type", 40); ls = wrap(hook_txt.upper(), f, 900)

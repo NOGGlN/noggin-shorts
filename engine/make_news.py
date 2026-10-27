@@ -10,7 +10,7 @@ and saves a check sheet of key frames to /tmp/news_check_<date>.png.
 import json, os, re, subprocess, sys
 HERE = os.path.dirname(os.path.abspath(__file__)); sys.path.insert(0, HERE)
 import glob, datetime
-import news2, news3, news4
+import news2, news3, news4, carousel
 
 def norm(t): return re.sub(r"[^a-z0-9 ]", "", t.lower()).strip()
 
@@ -34,8 +34,10 @@ if __name__ == "__main__":
             seen.add(norm(it["text"])); seen.add(link)
             new.append(dict(date=date, text=it["text"], real=it["real"], link=link))
         briefs = v.get("briefs", [])
-        assert 3 <= len(briefs) <= 5, "each video needs 3-5 In Brief items"
-        for b in briefs:
+        pages = briefs if briefs and isinstance(briefs[0], (list, tuple)) else [briefs]
+        assert all(3 <= len(pg) <= 5 for pg in pages), "each page needs 3-5 In Brief items"
+        assert len(pages) in (1, len(items)), "give one brief list for all pages, or one list per story page"
+        for b in [b for pg in pages for b in pg]:
             assert b["source"].get("link", "").startswith("http"), f"brief needs a full source link: {b['title']}"
             if norm(b["title"]) in seen or b["source"]["link"] in seen: raise SystemExit(f"DUPLICATE brief already used: {b['title']}")
             seen.add(norm(b["title"])); seen.add(b["source"]["link"])
@@ -48,7 +50,14 @@ if __name__ == "__main__":
         for s in segs:
             for tt in (s["start"] + 0.8, s["explain"] - 0.5, s["explain"] + 1.5):
                 frames.append((mp4, tt))
-        manifest.append(dict(n=n, file=fn, url=f"https://raw.githubusercontent.com/NOGGlN/noggin-shorts/main/videos/{date}/{fn}",
+        # swipeable photo versions: Instagram 4:5 and TikTok 9:16
+        cdir = os.path.join(out, f"news-{n}-carousel"); base = f"https://raw.githubusercontent.com/NOGGlN/noggin-shorts/main/videos/{date}/news-{n}-carousel/"
+        ig = carousel.make_carousel(items, briefs, v.get("hook"), cdir, "ig", 1350, issue, dtxt)
+        tt = carousel.make_carousel(items, briefs, v.get("hook"), cdir, "tt", 1920, issue, dtxt)
+        assert len(ig) <= 20 and len(tt) <= 35
+        caption = v.get("caption") or v["description"].replace("#shorts ", "")
+        manifest.append(dict(n=n, file=fn, ig_media=[base + os.path.basename(p) for p in ig], tt_media=[base + os.path.basename(p) for p in tt],
+                             caption=caption, url=f"https://raw.githubusercontent.com/NOGGlN/noggin-shorts/main/videos/{date}/{fn}",
                              title=(v["title"] if "#shorts" in v["title"] else v["title"] + " #shorts")[:100],
                              description=v["description"], stories=[i["text"] for i in items]))
         print("done", fn, round(total, 1), "s", flush=True)

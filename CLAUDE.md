@@ -53,7 +53,9 @@ on the first story, page-turn transitions, "Letters to the Editor" ending. Engin
 a day (it numbers the issues and prints the publish date on the masthead). Sample: `engine/days/news_sample4.py` (copy its style).
 NO quiz, NO fake headlines, NO voting. Each video = 2-3 REAL main stories in the left column: photo + headline, then a lead
 (1-2 sentences, drop cap), then FINE PRINT (`body`, 50-80 words, more real detail so it reads like a real article), then the source.
-Right column on every page: "IN BRIEF" sidebar with 3-5 short real items (see step 2b). Sound: ambient bed + paper rustles + stamp thuds, no song, no ticks.
+Right column on every page: "IN BRIEF" sidebar with 3-5 short real items (see step 2b) - a DIFFERENT set of briefs on each story page.
+Every edition is ALSO posted as a swipeable photo carousel on Instagram (@nogglndaily, 4:5) and TikTok photo mode (@noggin.daily, 9:16),
+made by `engine/carousel.py` (cover, 2 slides per story, In Brief grid slides, Letters to the Editor). make_news.py renders them too. Sound: ambient bed + paper rustles + stamp thuds, no song, no ticks.
 (news2.py = old Real-or-Fake format, news3.py = old dark modern look; neither is used any more.)
 
 1. **Target day:** Metricool `getScheduledPosts` (brand 7672444, Europe/Lisbon) from tomorrow to +7 days. Earliest day where the
@@ -73,7 +75,7 @@ Right column on every page: "IN BRIEF" sidebar with 3-5 short real items (see st
    - Your headline: short, plain, punchy, under ~20 words, no emoji. `detail` (lead): 1-2 sentences, under ~25 words.
      `body` (fine print): 50-80 words in 1-2 paragraphs (split with "\n") with extra facts from the article: who, where, numbers,
      what happens next. Rewrite in your own words, never copy sentences from the article. Every fact must be in the article.
-2b. **In Brief sidebar** (3-5 items per video, different items in each video of the day): quick real news a Gen Z viewer cares about,
+2b. **In Brief sidebar** (3-5 items PER STORY PAGE, so 6-10 per video; every page and every video of the day gets different items): quick real news a Gen Z viewer cares about,
    from the last 7 days, each with a category label:
    - TECH / LAUNCH: new phones, cars, consoles, gadgets, apps (e.g. a new Tesla), with the key feature and price.
    - DROPS: sneakers, fashion and beauty drops, perfumes, collabs, store openings, with release date and price.
@@ -110,14 +112,25 @@ Right column on every page: "IN BRIEF" sidebar with 3-5 short real items (see st
    Write the credit on the photo (`"Place | Author / License"`) and in the description.
    If the computer or browser can't be reached: STOP the news job and report it. Do not make news without photos.
 4. **Day file** `engine/days/news_YYYY_MM_DD.py` with
-   `NEWS = [dict(title=..., hook=..., items=[2-3 items], briefs=[3-5 briefs], description=...), ...]`. Items exactly like
+   `NEWS = [dict(title=..., hook=..., items=[2-3 items], briefs=[[page-1 briefs], [page-2 briefs], ...], description=..., caption=...), ...]`
+   (briefs = one list per story page, 3-5 each). caption = the Instagram/TikTok text: hook line, one line per main story, "Sources:" with
+   outlet + link for each story and brief, photo credits, then `#news #crazynews #didyouknow #noggin #thenoggintimes`. Items exactly like
    news_sample4.py (text, detail, body, photo, credit, optional explain_photo/explain_credit, source with outlet/date/headline/url/link). hook = on-screen opener, e.g.
    "3 things that actually happened this week". Title: curiosity hook under 60 chars, one emoji, e.g. "This really happened this week 📰 #shorts".
    Description: one hook line, then "Sources:" with outlet + full link for every main story AND every brief, then "Photos (Wikimedia Commons):" credits,
    then `#shorts #news #crazynews #didyouknow #noggin`.
 5. **Render:** `cd engine && python3 make_news.py days/news_YYYY_MM_DD.py YYYY-MM-DD`, then open `/tmp/news_check_YYYY-MM-DD.png` with Read
-   and check every frame (text fits, nothing overlaps, facts match the articles). Fix and re-render if needed (remove that date's entries from
+   and also open every carousel slide (`videos/YYYY-MM-DD/news-N-carousel/ig_*.jpg` and `tt_*.jpg`) and check every frame and slide (text fits, nothing overlaps, facts match the articles). Fix and re-render if needed (remove that date's entries from
    used_news.json and delete videos/YYYY-MM-DD/news-* first).
-6. **Publish:** commit + push (fetch/rebase first), then schedule each entry of `videos/YYYY-MM-DD/news_manifest.json` in its free slot with
-   the same createScheduledPost body as the puzzles, but tags ["news", "weird news", "crazy news", "this week", "noggin", "shorts"].
-7. **Report:** date, titles, every headline with its source link.
+6. **Publish:** commit + push (fetch/rebase first), then for each entry of `videos/YYYY-MM-DD/news_manifest.json`, in its free slot, make
+   THREE Metricool `createScheduledPost` calls at the same time (blogId 7672444, timezone Europe/Lisbon):
+   a) YouTube Short: same body as the puzzles, media [url], tags ["news", "weird news", "crazy news", "this week", "noggin", "shorts"].
+   b) Instagram carousel: providers [{"network": "instagram"}], media = `ig_media` (all slide URLs, in order), text = `caption`,
+      "instagramData": {"type": "POST", "isAiGenerated": false}.
+   c) TikTok photo post: providers [{"network": "tiktok"}], media = `tt_media` (in order), text = `caption`,
+      "tiktokData": {"privacyOption": "PUBLIC_TO_EVERYONE", "title": <title without #shorts, under 90 chars>, "autoAddMusic": true,
+      "photoCoverIndex": 0, "disableComment": false, "disableDuet": false, "disableStitch": false,
+      "commercialContentThirdParty": false, "commercialContentOwnBrand": false}.
+   Each call: "autoPublish": true, "draft": false, "descendants": [], "firstCommentText": "", "hasNotReadNotes": false, "mediaAltText": [],
+   "shortener": false, "smartLinkData": {"ids": []}. If one network fails, still schedule the others and report the error.
+7. **Report:** date, titles, every headline and brief with its source link, and which of YouTube / Instagram / TikTok got scheduled.

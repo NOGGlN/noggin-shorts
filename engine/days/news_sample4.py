@@ -22,7 +22,7 @@ ITEMS = [
                      headline="World's oldest shipwreck found off coast of Turkiye",
                      url="aljazeera.com", link="https://aljazeera.com/news/2026/10/14/worlds-oldest-shipwreck-found-off-coast-of-turkiye")),
 ]
-BRIEFS = [
+BRIEFS_P1 = [
     dict(cat="Tech", title="Tesla's new Roadster hits 0-60 mph in one second",
          text="Revealed in Texas, it uses cold-gas thrusters and can hop over cars. Range: 300 miles. Deliveries planned for 2028.",
          price="Reservation: $50,000",
@@ -42,3 +42,26 @@ BRIEFS = [
          photo="assets/photos/briefs/parliament.jpg", credit="Sao Bento Palace, Lisbon | Jose Manuel / CC BY-SA 3.0",
          source=dict(outlet="DN / Lusa", date="Sep 23", link="https://www.dn.pt/economia/proposta-de-oramento-do-estado-debatido-na-generalidade-a-27-e-28-de-outubro-e-votada-a-24-novembro")),
 ]
+
+BRIEFS_P2 = [
+    dict(cat="Tech", title="Apple's new MacBook Pro gets the M6 chip",
+         text="12-core CPU and GPU, Wi-Fi 7 and up to 24 hours of battery. Pre-orders Oct 28, in stores Nov 6.",
+         price="From: $1,999",
+         photo="assets/photos/briefs/macbook_pro_apple.jpg", credit="Image: Apple",
+         source=dict(outlet="MacRumors", date="Oct 27", link="https://www.macrumors.com/2026/10/27/m6-14-inch-macbook-pro-pre-orders-release-date/")),
+    dict(cat="Games", title="Phantom Blade Zero is finally out",
+         text="S-GAME's kung-fu action game stars Soul, a warrior with 66 days left to live. On PC and PS5.",
+         price="Out Oct 28 on Steam: 59,99 EUR",
+         photo="assets/photos/briefs/phantom_blade_zero.jpg", credit="Image: S-GAME",
+         source=dict(outlet="Steam", date="Oct 27", link="https://store.steampowered.com/app/4115450/Phantom_Blade_Zero/")),
+    dict(cat="Drops", title="The Air Jordan 14 'Forest Green' returns",
+         text="Back for the first time since 2005, with chrome details and carbon fibre accents.",
+         price="Oct 31 on SNKRS: $215",
+         photo="assets/photos/briefs/aj14_nike.jpg", credit="Image: Nike",
+         source=dict(outlet="Nike SNKRS", date="Oct 27", link="https://www.nike.com/launch/t/air-jordan-14-forest-green")),
+    dict(cat="Strikes", title="Public sector strike set for Nov 20 in Portugal",
+         text="The Frente Comum unions picked a date four days before the final 2027 budget vote.",
+         photo="assets/photos/briefs/sao_bento_2.jpg", credit="Parliament, Lisbon | Stefan Didam / CC BY-SA 3.0",
+         source=dict(outlet="SOL / Lusa", date="Oct 27", link="https://sol.iol.pt/sociedade/noticias/greve-na-funcao-publica-marcada-para-novembro-sindicatos-escolhem-data-estrategica-para-pressionar-governo/20261027/6ae0b0470cf22b9f89052dc1")),
+]
+BRIEFS = [BRIEFS_P1, BRIEFS_P2]   # one sidebar per story page
