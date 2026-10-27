@@ -5,7 +5,7 @@ Videos are published to the NOGGIN YouTube channel through Metricool (brand id `
 
 ## Daily slots (Europe/Lisbon)
 - Puzzle/trivia Shorts: **2 per day at 12:20 and 19:00** (the puzzle scheduled task; its prompt overrides the old 7-a-day rule below).
-- Real-or-Fake news Shorts: **max 2 per day at 10:00 and 16:00** (see "News job" at the end).
+- Real news Shorts (real stories only): **max 2 per day at 10:00 and 16:00** (see "News job" at the end).
 Never more than 4 Shorts a day in total. Posts with draft=true don't count.
 
 ## The daily job, step by step
@@ -66,7 +66,7 @@ with the verified source. Ends "Which one is the craziest? Comment 1, 2 or 3". D
      Every number and detail on screen must match the article.
    - Check `engine/data/used_news.json`: never reuse a story.
    - Your headline: short, plain, punchy, under ~20 words, no emoji. Detail: 1-2 sentences, under ~30 words.
-3. **Photos** (one per headline, optional explain_photo / fix_photo): only free-license photos from Wikimedia Commons (includes NASA).
+3. **Photos** (one per headline, optional explain_photo): only free-license photos from Wikimedia Commons (includes NASA).
    Never news photos, never real people's faces, never logos. The cloud workspace can't reach Commons, so use the BUILT-IN browser on the
    owner's computer (load tools with ToolSearch "mcp__remote-devices__Claude_Browser__", max_results 64; commons.wikimedia.org is
    already allowed). In a Commons tab, run javascript: query the API
@@ -82,7 +82,7 @@ with the verified source. Ends "Which one is the craziest? Comment 1, 2 or 3". D
    credit, optional explain_photo/explain_credit, source with outlet/date/headline/url/link). hook = on-screen opener, e.g.
    "3 things that actually happened this week". Title: curiosity hook under 60 chars, one emoji, e.g. "This really happened this week 😳 #shorts".
    Description: one hook line, then "Sources:" with outlet + full link for every real story, then "Photos (Wikimedia Commons):" credits,
-   then `#shorts #news #realorfake #didyouknow #noggin`.
+   then `#shorts #news #crazynews #didyouknow #noggin`.
 5. **Render:** `cd engine && python3 make_news.py days/news_YYYY_MM_DD.py YYYY-MM-DD`, then open `/tmp/news_check_YYYY-MM-DD.png` with Read
    and check every frame (text fits, nothing overlaps, facts match the articles). Fix and re-render if needed (remove that date's entries from
    used_news.json and delete videos/YYYY-MM-DD/news-* first).
