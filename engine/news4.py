@@ -27,7 +27,7 @@ def F(name, sz):
         _fc[k] = ImageFont.truetype(os.path.join(FD, fn), sz)
     return _fc[k]
 
-def detail_time(it): return max(5.5, min(9.5, 3.0 + 0.28*len(it["detail"].split())))
+def detail_time(it): return max(6.0, min(11.0, 3.2 + 0.28*len(it["detail"].split()) + 0.03*len(it.get("body", "").split())))
 
 def timeline(items):
     t, segs = 0.0, []
@@ -142,48 +142,83 @@ def footer(page, txt):
     d = ImageDraw.Draw(page); d.line((50, H - 120, W - 50, H - 120), fill=INK, width=2)
     d.text((W/2, H - 84), txt, font=F("type", 28), fill=INK, anchor="mm")
 
+SB_W = 300; MAIN_W = W - 120 - SB_W - 34      # main column / sidebar widths when briefs are shown
+
+def draw_sidebar(page, briefs, y0, y1):
+    """'IN BRIEF' column: launches, drops, sport, votes, strikes... each with price/date and a tiny source line."""
+    d = ImageDraw.Draw(page); x0 = W - 60 - SB_W
+    d.line((x0 - 17, y0, x0 - 17, y1), fill=INK, width=2)
+    d.rectangle((x0, y0, x0 + SB_W, y0 + 54), fill=INK)
+    d.text((x0 + SB_W/2, y0 + 27), "IN BRIEF", font=F("head", 36), fill=PAPER, anchor="mm")
+    y = y0 + 74; gap = 18
+    for k, b in enumerate(briefs):
+        blk = []
+        blk.append(("type", 22, RED, [b["cat"].upper()], 28))
+        f, ls, lh = fit_lines(b["title"], "head", SB_W, 140, 33, lh=1.06, minsz=26); blk.append(("head", f.size, INK, ls, lh))
+        fb = F("body", 24); blk.append(("body", 24, INK, wrap(b["text"], fb, SB_W), 28))
+        if b.get("price"): blk.append(("type", 24, INK, wrap(b["price"], F("type", 24), SB_W), 30))
+        src = b["source"]; blk.append(("ital", 19, GREY, wrap(f"Source: {src['outlet']}, {src['date']}", F("ital", 19), SB_W), 23))
+        h = sum(len(ls)*lh for _, _, _, ls, lh in blk) + 10
+        if y + h > y1: break
+        for name, sz, col, ls, lh in blk:
+            for l in ls: d.text((x0, y), l, font=F(name, sz), fill=col); y += lh
+        y += gap
+        if k < len(briefs) - 1 and y + 30 < y1:
+            d.line((x0, y - gap/2, x0 + SB_W, y - gap/2), fill=INK, width=1); y += 6
+
 class Story:
-    def __init__(self, it, i, n, paper, issue_no, date_txt):
-        self.it = it; self.i = i; self.n = n
+    def __init__(self, it, i, n, paper, issue_no, date_txt, briefs=None):
+        self.it = it; self.i = i; self.n = n; self.briefs = briefs or []
+        self.mw = MAIN_W if self.briefs else W - 120
         self.photo = load_photo(it["photo"]); self.photo2 = load_photo(it["explain_photo"]) if it.get("explain_photo") else None
         page = paper.copy(); masthead(page, issue_no, date_txt)
         footer(page, "CONTINUED ON NEXT PAGE  >>" if i < n - 1 else "FOLLOW FOR TOMORROW'S EDITION")
         d = ImageDraw.Draw(page); M = 60
-        d.text((M, 352), f"STORY {i + 1} OF {n}  |  THIS REALLY HAPPENED", font=F("type", 30), fill=RED, anchor="lm")
-        f, ls, lh = fit_lines(it["text"], "head", W - 2*M, 360, 88)
-        y = 392
+        d.text((M, 352), f"STORY {i + 1} OF {n}  |  THIS REALLY HAPPENED", font=F("type", 26 if self.briefs else 30), fill=RED, anchor="lm")
+        f, ls, lh = fit_lines(it["text"], "head", self.mw, 340, 74 if self.briefs else 88, minsz=48)
+        y = 386
         for l in ls: d.text((M, y), l, font=f, fill=INK); y += lh
-        self.head_bottom = y + 18
-        d.line((M, self.head_bottom, W - M, self.head_bottom), fill=INK, width=2)
+        self.head_bottom = y + 14
+        d.line((M, self.head_bottom, M + self.mw, self.head_bottom), fill=INK, width=2)
+        if self.briefs: draw_sidebar(page, self.briefs, 330, H - 140)
         self.page = page
         self.py = self.head_bottom + 30
-        self.ph_full = (H - 140 - 70) - self.py    # photo height while reading
-        self.ph_small = max(330, int(self.ph_full*0.48))
-        self.pw = W - 2*M
+        self.article = self.article_block(self.mw)
+        self.ph_full = (H - 140 - 60) - self.py
+        self.ph_small = max(240, (H - 150) - self.py - 50 - self.article.height)
+        self.pw = self.mw
         self.ht = halftone(self.photo, (self.pw + 70, self.ph_full + 70))
         self.ht2 = halftone(self.photo2, (self.pw + 70, self.ph_full + 70)) if self.photo2 else None
         self.t1, self.t2 = tape(seed=i*3 + 1), tape(ang=35, seed=i*3 + 2)
-        self.article = self.article_block(W - 2*M)
 
     def article_block(self, w):
-        it = self.it; src = it["source"]; im = Image.new("RGBA", (w, 700), (0, 0, 0, 0)); d = ImageDraw.Draw(im)
+        it = self.it; src = it["source"]; im = Image.new("RGBA", (w, 1400), (0, 0, 0, 0)); d = ImageDraw.Draw(im)
+        lead_sz = 40 if self.briefs else 48; llh = int(lead_sz*1.22)
         txt = it["detail"]; cap = txt[0]; rest = txt[1:]
-        fb = F("body", 48); lh = 60
-        fd = F("head", 118); bb = MEAS.textbbox((0, 0), cap, font=fd); d.text((-bb[0], -bb[1] + 6), cap, font=fd, fill=INK); cw = bb[2] - bb[0] + 16; lines, cur = [], ""; y = 0
+        fb = F("body", lead_sz)
+        fd = F("head", int(llh*2*0.98)); bb = MEAS.textbbox((0, 0), cap, font=fd); d.text((-bb[0], -bb[1] + 5), cap, font=fd, fill=INK); cw = bb[2] - bb[0] + 14
+        lines, cur = [], ""
         for wd in rest.split(" "):
             maxw = w - cw if len(lines) < 2 else w
             tr = cur + (" " if cur else "") + wd
             if MEAS.textlength(tr, font=fb) <= maxw or not cur: cur = tr
             else: lines.append(cur); cur = wd
         lines.append(cur)
-        for k, l in enumerate(lines): d.text((cw if k < 2 else 0, y + k*lh), l, font=fb, fill=INK)
-        y += len(lines)*lh + 22
-        d.line((0, y, w, y), fill=INK, width=1); y += 18
-        d.text((0, y), f"SOURCE: {src['outlet'].upper()}  -  {src['date'].upper()}", font=F("type", 30), fill=RED); y += 46
-        fi, hl, hlh = fit_lines(f'"{src["headline"]}"', "ital", w, 120, 36, lh=1.15, minsz=28)
+        for k, l in enumerate(lines): d.text((cw if k < 2 else 0, k*llh), l, font=fb, fill=INK)
+        y = max(len(lines), 2)*llh + 16
+        body = it.get("body")
+        if body:   # fine print: the longer article text, set small like a real column
+            fs = F("body", 27); blh = 33
+            for para in body.split("\n"):
+                for l in wrap(para.strip(), fs, w): d.text((0, y), l, font=fs, fill=(45, 42, 38)); y += blh
+                y += 6
+            y += 8
+        d.line((0, y, w, y), fill=INK, width=1); y += 16
+        d.text((0, y), f"SOURCE: {src['outlet'].upper()}  -  {src['date'].upper()}", font=F("type", 26 if self.briefs else 30), fill=RED); y += 40
+        fi, hl, hlh = fit_lines(f'"{src["headline"]}"', "ital", w, 100, 32 if self.briefs else 36, lh=1.15, minsz=24)
         for l in hl: d.text((0, y), l, font=fi, fill=GREY); y += hlh
-        d.text((0, y + 4), src["url"], font=F("typer", 30), fill=INK)
-        return im.crop((0, 0, w, y + 44))
+        d.text((0, y + 4), src["url"], font=F("typer", 26 if self.briefs else 30), fill=INK)
+        return im.crop((0, 0, w, y + 40))
 
     def render(self, t, s, paper_cache=None):
         page = self.page.copy(); lt = t - s["start"]; dur = s["end"] - s["start"]
@@ -193,21 +228,18 @@ class Story:
         pan = lt/dur
         ox = int(35 + 30*math.sin(pan*math.pi - math.pi/2)); oy = int((self.ph_full + 70 - ph)/2 + 20*pan)
         pic = src.crop((ox, oy, ox + self.pw, oy + ph))
-        if self.ht2 is not None and s["explain"] - 0.3 <= t < s["explain"] + 0.3:   # flash cut between photos
-            pass
-        # photo frame: thin ink border + shadow + tape
         sh = Image.new("RGBA", (self.pw + 40, ph + 40), (0, 0, 0, 0)); ImageDraw.Draw(sh).rectangle((20, 26, self.pw + 20, ph + 26), fill=(0, 0, 0, 70))
         page.alpha_composite(sh.filter(ImageFilter.GaussianBlur(9)), (60 - 20, self.py - 20))
         page.alpha_composite(pic, (60, self.py))
         d = ImageDraw.Draw(page); d.rectangle((60, self.py, 60 + self.pw - 1, self.py + ph - 1), outline=INK, width=3)
         page.alpha_composite(self.t1, (60 - 55, self.py - 40)); page.alpha_composite(self.t2, (60 + self.pw - self.t2.width + 55, self.py - 40))
         cap = self.it["explain_credit"] if (self.ht2 is not None and t >= s["explain"]) else self.it["credit"]
-        d.text((60, self.py + ph + 12), "PHOTO: " + cap, font=F("ital", 24), fill=GREY)
+        d.text((60, self.py + ph + 10), "PHOTO: " + cap, font=F("ital", 21 if self.briefs else 24), fill=GREY)
         if ex > 0:
             a = ease((t - s["explain"] - 0.25)/0.5)
             art = self.article
             if a < 1: art = Image.blend(Image.new("RGBA", art.size, (0, 0, 0, 0)), art, a)
-            page.alpha_composite(art, (60, self.py + ph + 60 + int(30*(1 - a))))
+            page.alpha_composite(art, (60, self.py + ph + 46 + int(30*(1 - a))))
         return page
 
 def outro_page(paper, issue_no, date_txt, n):
@@ -224,17 +256,18 @@ def outro_page(paper, issue_no, date_txt, n):
     return page, y + 230
 
 # ---------- render ----------
-def make_video(items, out, wav, hook_txt=None, issue_no=1, date_txt=None):
+def make_video(items, out, wav, hook_txt=None, issue_no=1, date_txt=None, briefs=None):
     segs, total = timeline(items); NF = int(round(total*FPS))
     date_txt = date_txt or datetime.date.today().strftime("%A, %B %d, %Y").replace(" 0", " ")
     paper = make_paper(); grains = grain_layers()
-    stories = [Story(it, i, len(items), paper, issue_no, date_txt) for i, it in enumerate(items)]
+    stories = [Story(it, i, len(items), paper, issue_no, date_txt, briefs) for i, it in enumerate(items)]
     extra = stamp("EXTRA!", 150, ang=-9); hook_line = None
     if hook_txt:
         f = F("type", 40); ls = wrap(hook_txt.upper(), f, 900)
-        hook_line = Image.new("RGBA", (960, 56*len(ls) + 30), (0, 0, 0, 0)); hd = ImageDraw.Draw(hook_line)
+        hw = (MAIN_W - 20) if briefs else 960; f = F("type", 34 if briefs else 40); ls = wrap(hook_txt.upper(), f, hw - 60)
+        hook_line = Image.new("RGBA", (hw, 50*len(ls) + 30), (0, 0, 0, 0)); hd = ImageDraw.Draw(hook_line)
         hd.rectangle((0, 0, hook_line.width, hook_line.height), fill=PAPER + (240,)); hd.rectangle((0, 0, hook_line.width - 1, hook_line.height - 1), outline=INK, width=3)
-        for k, l in enumerate(ls): hd.text((480, 15 + 28 + k*56), l, font=f, fill=INK, anchor="mm")
+        for k, l in enumerate(ls): hd.text((hw//2, 15 + 25 + k*50), l, font=f, fill=INK, anchor="mm")
     opage, oy = outro_page(paper, issue_no, date_txt, len(items)); editor = ink_mascot(size=(440, 481))
     cmd = ["ffmpeg", "-y", "-loglevel", "error", "-f", "rawvideo", "-pix_fmt", "rgb24", "-s", f"{W}x{H}", "-r", str(FPS),
            "-i", "-", "-i", wav, "-c:v", "libx264", "-preset", "veryfast", "-crf", "19", "-pix_fmt", "yuv420p",
@@ -255,11 +288,11 @@ def make_video(items, out, wav, hook_txt=None, issue_no=1, date_txt=None):
             sc = 1.6 - 0.6*ease(u/0.18) if u < 0.18 else 1.0
             st = extra.resize((int(extra.width*sc), int(extra.height*sc)), Image.LANCZOS) if sc != 1 else extra
             if a < 1: st = Image.blend(Image.new("RGBA", st.size, (0, 0, 0, 0)), st, a)
-            cy = stories[0].py + stories[0].ph_full//2 - 120
-            pg.alpha_composite(st, (W//2 - st.width//2, cy - st.height//2))
+            cy = stories[0].py + stories[0].ph_full//2 - 120; cx0 = 60 + stories[0].pw//2
+            pg.alpha_composite(st, (cx0 - st.width//2, cy - st.height//2))
             if hook_line is not None and t > 0.35:
                 hl = hook_line if a >= 1 else Image.blend(Image.new("RGBA", hook_line.size, (0, 0, 0, 0)), hook_line, a)
-                pg.alpha_composite(hl, (W//2 - hl.width//2, cy + 140))
+                pg.alpha_composite(hl, (cx0 - hl.width//2, cy + 140))
         return pg
     for f in range(NF):
         t = f/FPS
@@ -315,5 +348,5 @@ if __name__ == "__main__":
     data, out = sys.argv[1], sys.argv[2]
     mod = load(data); items = mod.ITEMS; assert 2 <= len(items) <= 3
     wav = out + ".wav"; make_audio(items, wav)
-    segs, total = make_video(items, out, wav, getattr(mod, "HOOK", None), getattr(mod, "ISSUE", 1), getattr(mod, "DATE", None)); os.remove(wav)
+    segs, total = make_video(items, out, wav, getattr(mod, "HOOK", None), getattr(mod, "ISSUE", 1), getattr(mod, "DATE", None), getattr(mod, "BRIEFS", None)); os.remove(wav)
     print("total", round(total, 1), "s")

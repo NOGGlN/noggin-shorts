@@ -50,9 +50,10 @@ Never more than 4 Shorts a day in total. Posts with draft=true don't count.
 Format: **"The Noggin Times"** - a retro newspaper look made for Gen Z's analog/print revival trend: paper texture and grain,
 Fraktur masthead, Times-style headlines, typewriter labels, halftone black-and-white photos with tape corners, red "EXTRA!" stamp
 on the first story, page-turn transitions, "Letters to the Editor" ending. Engine: `engine/news4.py`; `engine/make_news.py` renders
-a day (it numbers the issues and prints the publish date on the masthead). Sample: `engine/days/news_sample3.py`.
-NO quiz, NO fake headlines, NO voting. Each video = 2-3 REAL stories: photo + headline, then the article (1-2 sentences, drop cap)
-with the verified source. Sound: ambient bed + paper rustles + stamp thuds, no song, no ticks.
+a day (it numbers the issues and prints the publish date on the masthead). Sample: `engine/days/news_sample4.py` (copy its style).
+NO quiz, NO fake headlines, NO voting. Each video = 2-3 REAL main stories in the left column: photo + headline, then a lead
+(1-2 sentences, drop cap), then FINE PRINT (`body`, 50-80 words, more real detail so it reads like a real article), then the source.
+Right column on every page: "IN BRIEF" sidebar with 3-5 short real items (see step 2b). Sound: ambient bed + paper rustles + stamp thuds, no song, no ticks.
 (news2.py = old Real-or-Fake format, news3.py = old dark modern look; neither is used any more.)
 
 1. **Target day:** Metricool `getScheduledPosts` (brand 7672444, Europe/Lisbon) from tomorrow to +7 days. Earliest day where the
@@ -61,14 +62,30 @@ with the verified source. Sound: ambient bed + paper rustles + stamp thuds, no s
    dark-humor-but-harmless real news (bizarre mishaps nobody was hurt in, absurd lawsuits and laws, creepy or cursed finds, animals
    behaving badly, embarrassing company or official fails, record-breaking or "how is this real" science and space).
    Pick the strongest one as story 1 (the first 2 seconds decide if people stay). Each video 2-3 stories with a common angle if possible.
-   - NOT allowed: anyone dying or badly hurt, crime with victims, disasters, war, politics/elections, religion, mocking private people,
+   - NOT allowed in main stories: anyone dying or badly hurt, crime with victims, disasters, war, politics/elections (votes go in the
+     sidebar only, as neutral facts), religion, mocking private people,
      anything about children, sex. If in doubt, skip it.
    - Confirm each story by fetching the article itself on a trusted outlet (AP, Reuters, BBC, The Guardian, NYT, Washington Post, CNN, NBC,
      CBS, ABC, Fox News, Al Jazeera, NPR, Sky News, The Independent, Euronews, NASA/ESA, Nature, Science, New Scientist,
      National Geographic, UPI Odd News). Use its real headline, outlet, date and full link. Never trust a headline from search alone.
      Every number and detail on screen must match the article.
    - Check `engine/data/used_news.json`: never reuse a story.
-   - Your headline: short, plain, punchy, under ~20 words, no emoji. Detail: 1-2 sentences, under ~30 words.
+   - Your headline: short, plain, punchy, under ~20 words, no emoji. `detail` (lead): 1-2 sentences, under ~25 words.
+     `body` (fine print): 50-80 words in 1-2 paragraphs (split with "\n") with extra facts from the article: who, where, numbers,
+     what happens next. Rewrite in your own words, never copy sentences from the article. Every fact must be in the article.
+2b. **In Brief sidebar** (3-5 items per video, different items in each video of the day): quick real news a Gen Z viewer cares about,
+   from the last 7 days, each with a category label:
+   - TECH / LAUNCH: new phones, cars, consoles, gadgets, apps (e.g. a new Tesla), with the key feature and price.
+   - DROPS: sneakers, fashion and beauty drops, perfumes, collabs, store openings, with release date and price.
+   - SPORT / F1: results, title races, transfers, next race date.
+   - VOTES: elections, referendums, parliament votes (dates, what is being voted, results). Strictly neutral facts only: no opinions,
+     no praise or criticism of any party or politician, no predictions.
+   - STRIKES / SCHOOL: strikes, school holidays, exam dates, transport strikes (Portugal and Europe are good: the owner is in Portugal).
+   - also good: movie/series/game releases, concerts and tour announcements, money (prices going up/down), space launches, weather records.
+   Each item: `dict(cat=, title= (under ~10 words), text= (1-2 short sentences), price= (optional, e.g. "Price: $135" or
+   "Out: Nov 7"), source=dict(outlet=, date="Oct 27", link=full URL))`. Confirm every item by fetching the article (trusted news
+   outlets, or for product drops: official brand pages, Vogue, GQ, Complex, Hypebeast, Highsnobiety, Sole Retriever, The Verge).
+   Prices and dates must match the source exactly. No deaths, crime, disasters or war in briefs either.
 3. **Photos** (one per headline, optional explain_photo): only free-license photos from Wikimedia Commons (includes NASA).
    Never news photos, never real people's faces, never logos. The cloud workspace can't reach Commons, so use the BUILT-IN browser on the
    owner's computer (load tools with ToolSearch "mcp__remote-devices__Claude_Browser__", max_results 64; commons.wikimedia.org is
@@ -81,10 +98,10 @@ with the verified source. Sound: ambient bed + paper rustles + stamp thuds, no s
    Write the credit on the photo (`"Place | Author / License"`) and in the description.
    If the computer or browser can't be reached: STOP the news job and report it. Do not make news without photos.
 4. **Day file** `engine/days/news_YYYY_MM_DD.py` with
-   `NEWS = [dict(title=..., hook=..., items=[2-3 items], description=...), ...]`. Items exactly like news_sample3.py (text, detail, photo,
-   credit, optional explain_photo/explain_credit, source with outlet/date/headline/url/link). hook = on-screen opener, e.g.
+   `NEWS = [dict(title=..., hook=..., items=[2-3 items], briefs=[3-5 briefs], description=...), ...]`. Items exactly like
+   news_sample4.py (text, detail, body, photo, credit, optional explain_photo/explain_credit, source with outlet/date/headline/url/link). hook = on-screen opener, e.g.
    "3 things that actually happened this week". Title: curiosity hook under 60 chars, one emoji, e.g. "This really happened this week 📰 #shorts".
-   Description: one hook line, then "Sources:" with outlet + full link for every real story, then "Photos (Wikimedia Commons):" credits,
+   Description: one hook line, then "Sources:" with outlet + full link for every main story AND every brief, then "Photos (Wikimedia Commons):" credits,
    then `#shorts #news #crazynews #didyouknow #noggin`.
 5. **Render:** `cd engine && python3 make_news.py days/news_YYYY_MM_DD.py YYYY-MM-DD`, then open `/tmp/news_check_YYYY-MM-DD.png` with Read
    and check every frame (text fits, nothing overlaps, facts match the articles). Fix and re-render if needed (remove that date's entries from

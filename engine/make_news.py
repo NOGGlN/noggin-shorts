@@ -33,11 +33,18 @@ if __name__ == "__main__":
             if norm(it["text"]) in seen or (link and link in seen): raise SystemExit(f"DUPLICATE story already used: {it['text']}")
             seen.add(norm(it["text"])); seen.add(link)
             new.append(dict(date=date, text=it["text"], real=it["real"], link=link))
+        briefs = v.get("briefs", [])
+        assert 3 <= len(briefs) <= 5, "each video needs 3-5 In Brief items"
+        for b in briefs:
+            assert b["source"].get("link", "").startswith("http"), f"brief needs a full source link: {b['title']}"
+            if norm(b["title"]) in seen or b["source"]["link"] in seen: raise SystemExit(f"DUPLICATE brief already used: {b['title']}")
+            seen.add(norm(b["title"])); seen.add(b["source"]["link"])
+            new.append(dict(date=date, text=b["title"], real=True, link=b["source"]["link"], kind="brief"))
         fn = f"news-{n}.mp4"; mp4 = os.path.join(out, fn); wav = mp4 + ".wav"
         issue = 1 + sum(len(json.load(open(m))) for m in glob.glob(os.path.join(HERE, "..", "videos", "*", "news_manifest.json"))
                         if os.path.dirname(m) != os.path.abspath(out)) + (n - 1)
         dtxt = datetime.date.fromisoformat(date).strftime("%A, %B %d, %Y").replace(" 0", " ")
-        news4.make_audio(items, wav); segs, total = news4.make_video(items, mp4, wav, v.get("hook"), issue, dtxt); os.remove(wav)
+        news4.make_audio(items, wav); segs, total = news4.make_video(items, mp4, wav, v.get("hook"), issue, dtxt, briefs); os.remove(wav)
         for s in segs:
             for tt in (s["start"] + 0.8, s["explain"] - 0.5, s["explain"] + 1.5):
                 frames.append((mp4, tt))
