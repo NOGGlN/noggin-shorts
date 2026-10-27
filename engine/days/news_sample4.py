@@ -7,6 +7,8 @@ ITEMS = [
          body=("The former British paratrooper set off from Chile on November 1, 1998, on what he planned as an unbroken walk home.\n"
                "He swam from France for about 20 hours, spread over three days, and came ashore at Shakespeare Beach near Dover on October 5. "
                "About 250 miles of walking were left between him and his mother's home in Hull."),
+         numbers=[("1998", "the year he set off from Chile"), ("4", "continents crossed on foot"),
+                  ("~20 hrs", "swimming the English Channel"), ("250 mi", "still left to walk home to Hull")],
          photo="assets/photos/road.jpg", credit="Patagonia, Chile | Vincent van Zeijst / CC BY-SA 3.0",
          explain_photo="assets/photos/dover.jpg", explain_credit="Dover, England | kallerna / CC BY-SA 4.0",
          source=dict(outlet="Fox News", date="October 10, 2026",
@@ -17,6 +19,8 @@ ITEMS = [
          body=("No wood survived, so the date comes from its cargo: more than 30 clay storage jars from the Early Bronze Age. "
                "Experts are still testing whether they held olive oil, wine or tree resin.\n"
                "Turkey's culture minister announced the find. The previous record holder, found near Dokos in Greece, is dated to around 2200 BC."),
+         numbers=[("4,700", "years ago it may have sunk"), ("30 m", "deep, off Kekova Island"),
+                  ("30+", "clay storage jars found"), ("~10 m", "long ship")],
          photo="assets/photos/kekova.jpg", credit="Kekova, Turkey | Tanya Dedyukhina / CC BY 3.0",
          source=dict(outlet="Al Jazeera", date="October 14, 2026",
                      headline="World's oldest shipwreck found off coast of Turkiye",

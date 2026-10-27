@@ -26,6 +26,8 @@ if __name__ == "__main__":
         for it in items:
             it["real"] = True
             assert it.get("detail") and it.get("source"), f"every story needs detail + source: {it['text']}"
+            assert 2 <= len(it.get("numbers", [])) <= 4, f"every story needs 2-4 'numbers' facts: {it['text']}"
+            assert it.get("explain_photo"), f"every story needs a second photo (explain_photo): {it['text']}"
             for k in ("photo", "explain_photo", "fix_photo"):
                 if it.get(k): assert os.path.exists(os.path.join(HERE, it[k])), f"missing photo {it[k]}"
             link = it.get("source", {}).get("link", "")

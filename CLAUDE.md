@@ -82,6 +82,10 @@ made by `engine/carousel.py` (cover, 2 slides per story, In Brief grid slides, L
    - Your headline: short, plain, punchy, under ~20 words, no emoji. `detail` (lead): 1-2 sentences, under ~25 words.
      `body` (fine print): 50-80 words in 1-2 paragraphs (split with "\n") with extra facts from the article: who, where, numbers,
      what happens next. Rewrite in your own words, never copy sentences from the article. Every fact must be in the article.
+     `numbers`: 4 key facts as (big number, short label), e.g. ("1998", "the year he set off from Chile") - shown as a
+     "BY THE NUMBERS" box on the carousel's second slide for each story. Every number must be in the source article.
+     `explain_photo` + `explain_credit`: a SECOND, different photo for each main story (the carousel's second slide uses it,
+     so the two slides of a story never show the same picture). The second slide must never repeat the headline or the lead.
 2b. **In Brief sidebar** (3-5 items PER STORY PAGE, so 6-10 per video; every page and every video of the day gets different items): quick real news a Gen Z viewer cares about,
    from the last 7 days, each with a category label:
    - TECH / LAUNCH: new phones, cars, consoles, gadgets, apps (e.g. a new Tesla), with the key feature and price.

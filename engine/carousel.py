@@ -90,21 +90,42 @@ def story_slides(h, it, i, n, issue, date_txt):
     for l in lead: d.text((M, y), l, font=lead_f, fill=INK); y += 54
     foot(pg, h, "THE FULL STORY  >>")
     out.append(grain(pg, h, 1 + 2*i))
-    # B: the full story (fine print + source), second photo if there is one
+    # B: the full story - NEW material only (no repeated headline or lead): by-the-numbers box, fine print, source, 2nd photo
     pg = paper(h, seed=3 + i); y = mini_masthead(pg, issue, date_txt, f"STORY {i + 1}  |  THE FULL STORY")
-    y = headline(pg, it["text"], y + 20, 200, 56, 40) + 14
-    d = ImageDraw.Draw(pg); d.line((M, y, 1080 - M, y), fill=INK, width=2); y += 34
-    fake = N.Story.__new__(N.Story); fake.it = it; fake.briefs = []
-    art = fake.article_block(CW)
-    pg.alpha_composite(art, (M, y)); y += art.height + 50
-    room = h - 120 - y - 50
-    p2 = it.get("explain_photo")
-    if room > 180:
-        ph = room
-        if p2: photo_box(pg, load_photo(p2), M, y, CW, ph, it.get("explain_credit", ""), seed=20 + i)
+    d = ImageDraw.Draw(pg); y += 24
+    nums = it.get("numbers") or []
+    if nums:
+        d.rectangle((M, y, 1080 - M, y + 52), fill=INK); d.text((540, y + 26), "BY THE NUMBERS", font=F("head", 34), fill=PAPER, anchor="mm"); y += 52
+        cols = 2; rows = math.ceil(len(nums)/cols); cw2 = CW//cols; rh = 150 if h < 1500 else 190
+        d.rectangle((M, y, 1080 - M, y + rows*rh), outline=INK, width=3)
+        for k, (big, label) in enumerate(nums):
+            cx, cy = M + (k % cols)*cw2, y + (k//cols)*rh
+            if k % cols: d.line((cx, cy + 14, cx, cy + rh - 14), fill=INK, width=1)
+            if k >= cols: d.line((cx + 14, cy, cx + cw2 - 14, cy), fill=INK, width=1)
+            bf = F("head", 72 if h < 1500 else 86)
+            while MEAS.textlength(big, font=bf) > cw2 - 40: bf = F("head", bf.size - 4)
+            d.text((cx + cw2/2, cy + rh*0.40), big, font=bf, fill=RED, anchor="mm")
+            lf = F("type", 22 if h < 1500 else 26); ll = wrap(label.upper(), lf, cw2 - 40)
+            for j, l in enumerate(ll[:2]): d.text((cx + cw2/2, cy + rh*0.72 + j*28), l, font=lf, fill=INK, anchor="mm")
+        y += rows*rh + 36
+    body = it.get("body", "")
+    bf = F("body", 32 if h < 1500 else 36); blh = int(bf.size*1.28)
+    for para in body.split("\n"):
+        for l in wrap(para.strip(), bf, CW): d.text((M, y), l, font=bf, fill=INK); y += blh
+        y += 10
+    src = it["source"]; y += 6
+    d.line((M, y, 1080 - M, y), fill=INK, width=1); y += 16
+    d.text((M, y), f"SOURCE: {src['outlet'].upper()}  -  {src['date'].upper()}", font=F("type", 26), fill=RED); y += 40
+    fi, hl, hlh = fit_lines(f'"{src["headline"]}"', "ital", CW, 90, 30, lh=1.15, minsz=24)
+    for l in hl: d.text((M, y), l, font=fi, fill=GREY); y += hlh
+    d.text((M, y + 2), src["url"], font=F("typer", 26), fill=INK); y += 60
+    room = h - 120 - y - 40
+    if room > 170:
+        p2 = it.get("explain_photo")
+        if p2: photo_box(pg, load_photo(p2), M, y, CW, room, it.get("explain_credit", ""), seed=20 + i)
         else:
             im = load_photo(it["photo"]); w, hh = im.size
-            photo_box(pg, im, M, y, CW, ph, it["credit"], seed=20 + i, crop=(int(w*0.15), int(hh*0.15), int(w*0.95), int(hh*0.95)))
+            photo_box(pg, im, M, y, CW, room, it["credit"], seed=20 + i, crop=(int(w*0.2), int(hh*0.2), int(w*0.9), int(hh*0.9)))
     foot(pg, h, "IN BRIEF  >>" if i == n - 1 else "NEXT STORY  >>")
     out.append(grain(pg, h, 2 + 2*i))
     return out
