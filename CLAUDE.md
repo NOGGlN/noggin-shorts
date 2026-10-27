@@ -5,10 +5,12 @@ Videos are published to the NOGGIN YouTube channel through Metricool (brand id `
 
 ## Daily slots (Europe/Lisbon)
 Every day, on all three networks (YouTube @NOGGIN, Instagram @nogglndaily, TikTok @noggin.daily):
-- **1 news edition at 10:00** ("News job" at the end): YouTube = the video Short; Instagram + TikTok = the swipeable PHOTO carousel.
-- **2 puzzle/trivia videos at 12:20 and 19:00** (the puzzle scheduled task; its prompt overrides the old 7-a-day rule below):
-  the same video goes to YouTube (Short), Instagram (Reel) and TikTok (video).
-Posts with draft=true don't count. The 16:00 slot is no longer used.
+- **1 news edition at 10:00 on all three** ("News job" at the end): YouTube = the video Short; Instagram + TikTok = the PHOTO carousel.
+- **Puzzle 1 at 12:00 on all three.**
+- **Puzzle 2 at 16:00 on YouTube, and 18:00 on Instagram + TikTok.**
+  (The puzzle scheduled task; its prompt overrides the old 7-a-day rule below. Same video: YouTube Short, Instagram Reel, TikTok video.)
+These times come from Metricool's best-time-to-post data (YouTube peaks ~16:00; Instagram and TikTok peak 10:00 and 18:00).
+Re-check them about once a month with getBestTimeToPostByNetwork and tell the owner if they shift. Posts with draft=true don't count.
 
 ## The daily job, step by step
 1. **Find the target day.** Use Metricool `getScheduledPosts` (brandId 7672444, timezone Europe/Lisbon) from tomorrow to +7 days.
