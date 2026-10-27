@@ -4,9 +4,11 @@ This repo holds the Noggin YouTube Shorts video engine (`engine/`) and the rende
 Videos are published to the NOGGIN YouTube channel through Metricool (brand id `7672444`, timezone Europe/Lisbon).
 
 ## Daily slots (Europe/Lisbon)
-- Puzzle/trivia Shorts: **2 per day at 12:20 and 19:00** (the puzzle scheduled task; its prompt overrides the old 7-a-day rule below).
-- Real news Shorts (real stories only): **max 2 per day at 10:00 and 16:00** (see "News job" at the end).
-Never more than 4 Shorts a day in total. Posts with draft=true don't count.
+Every day, on all three networks (YouTube @NOGGIN, Instagram @nogglndaily, TikTok @noggin.daily):
+- **1 news edition at 10:00** ("News job" at the end): YouTube = the video Short; Instagram + TikTok = the swipeable PHOTO carousel.
+- **2 puzzle/trivia videos at 12:20 and 19:00** (the puzzle scheduled task; its prompt overrides the old 7-a-day rule below):
+  the same video goes to YouTube (Short), Instagram (Reel) and TikTok (video).
+Posts with draft=true don't count. The 16:00 slot is no longer used.
 
 ## The daily job, step by step
 1. **Find the target day.** Use Metricool `getScheduledPosts` (brandId 7672444, timezone Europe/Lisbon) from tomorrow to +7 days.
@@ -33,7 +35,12 @@ Never more than 4 Shorts a day in total. Posts with draft=true don't count.
    answer is right. Fix the day file and re-render if anything is off (first remove that date's entries from used_questions.json and
    delete `videos/YYYY-MM-DD/`).
 5. **Publish files:** `git add -A && git commit -m "Add YYYY-MM-DD videos" && git push origin HEAD:main` (fetch + rebase first if needed).
-6. **Schedule** each video in `manifest.json` with Metricool `createScheduledPost` into the free slots, in order:
+6. **Schedule** each video in `manifest.json` with Metricool `createScheduledPost` into the free slots, in order (YouTube body below;
+   then ALSO schedule the same video URL at the same time as an Instagram Reel: providers [{"network": "instagram"}],
+   "instagramData": {"type": "REEL", "showReelOnFeed": true, "isAiGenerated": false}, text = YouTube title without "#shorts" + "\n\n" +
+   description; and as a TikTok video: providers [{"network": "tiktok"}], "tiktokData": {"privacyOption": "PUBLIC_TO_EVERYONE",
+   "title": <same title without #shorts>, "disableComment": false, "disableDuet": false, "disableStitch": false,
+   "commercialContentThirdParty": false, "commercialContentOwnBrand": false, "autoAddMusic": false, "isAigc": false}, same text):
    blogId `7672444`; `date` = slot time with Lisbon offset; info:
    `{"autoPublish": true, "draft": false, "descendants": [], "firstCommentText": "", "hasNotReadNotes": false,
      "media": [<manifest url>], "mediaAltText": [], "providers": [{"network": "youtube"}],
@@ -59,7 +66,7 @@ made by `engine/carousel.py` (cover, 2 slides per story, In Brief grid slides, L
 (news2.py = old Real-or-Fake format, news3.py = old dark modern look; neither is used any more.)
 
 1. **Target day:** Metricool `getScheduledPosts` (brand 7672444, Europe/Lisbon) from tomorrow to +7 days. Earliest day where the
-   10:00 and/or 16:00 slot has no non-draft YouTube post. Make 1 video per free news slot (max 2). Nothing free -> report "nothing to do".
+   10:00 slot has no non-draft YouTube post. Make exactly 1 edition for that day. Nothing free -> report "nothing to do".
 2. **Find stories** people will want to SHARE: the most recent (last 7 days, prefer last 3) jaw-dropping, funny, weird, ironic or
    dark-humor-but-harmless real news (bizarre mishaps nobody was hurt in, absurd lawsuits and laws, creepy or cursed finds, animals
    behaving badly, embarrassing company or official fails, record-breaking or "how is this real" science and space).
