@@ -1,4 +1,4 @@
-"""Render one day's Real-or-Fake news Shorts (max 2 per day).
+"""Render one day's real-news Shorts (max 2 per day, 2-3 real stories each, engine news3.py).
 
 Usage:  python3 make_news.py days/news_YYYY_MM_DD.py YYYY-MM-DD
 The day module defines NEWS = [ dict(title=<YouTube title>, items=[...3 items as in news2.py...], description=<text>), ... ]
@@ -9,7 +9,7 @@ and saves a check sheet of key frames to /tmp/news_check_<date>.png.
 """
 import json, os, re, subprocess, sys
 HERE = os.path.dirname(os.path.abspath(__file__)); sys.path.insert(0, HERE)
-import news2
+import news2, news3
 
 def norm(t): return re.sub(r"[^a-z0-9 ]", "", t.lower()).strip()
 
@@ -21,9 +21,10 @@ if __name__ == "__main__":
     out = os.path.join(HERE, "..", "videos", date); os.makedirs(out, exist_ok=True)
     new, manifest, frames = [], [], []
     for n, v in enumerate(day.NEWS, 1):
-        items = v["items"]; assert len(items) == 3 and any(not i["real"] for i in items) and any(i["real"] for i in items)
+        items = v["items"]; assert 2 <= len(items) <= 3, "2 or 3 real stories per video"
         for it in items:
-            assert ("source" in it) == it["real"] and ("fix" in it) == (not it["real"]), it
+            it["real"] = True
+            assert it.get("detail") and it.get("source"), f"every story needs detail + source: {it['text']}"
             for k in ("photo", "explain_photo", "fix_photo"):
                 if it.get(k): assert os.path.exists(os.path.join(HERE, it[k])), f"missing photo {it[k]}"
             link = it.get("source", {}).get("link", "")
@@ -32,13 +33,13 @@ if __name__ == "__main__":
             seen.add(norm(it["text"])); seen.add(link)
             new.append(dict(date=date, text=it["text"], real=it["real"], link=link))
         fn = f"news-{n}.mp4"; mp4 = os.path.join(out, fn); wav = mp4 + ".wav"
-        news2.make_audio(items, getattr(day, "MUSIC", None), wav); segs, total = news2.make_video(items, mp4, wav); os.remove(wav)
+        news3.make_audio(items, wav); segs, total = news3.make_video(items, mp4, wav, v.get("hook")); os.remove(wav)
         for s in segs:
-            for tt in (s["vote"] + 0.8, s["reveal"] + 0.3, s["explain"] + 1.5):
+            for tt in (s["start"] + 0.8, s["explain"] - 0.5, s["explain"] + 1.5):
                 frames.append((mp4, tt))
         manifest.append(dict(n=n, file=fn, url=f"https://raw.githubusercontent.com/NOGGlN/noggin-shorts/main/videos/{date}/{fn}",
                              title=(v["title"] if "#shorts" in v["title"] else v["title"] + " #shorts")[:100],
-                             description=v["description"], answers=["REAL" if i["real"] else "FAKE" for i in items]))
+                             description=v["description"], stories=[i["text"] for i in items]))
         print("done", fn, round(total, 1), "s", flush=True)
     from PIL import Image
     sheet = Image.new("RGB", (9*240, len(day.NEWS)*427), "grey")

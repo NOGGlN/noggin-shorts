@@ -46,23 +46,26 @@ Never more than 4 Shorts a day in total. Posts with draft=true don't count.
 7. **Report** in one short message: the date filled, the 7 (or N) YouTube titles and the answers.
 
 
-## News job (Real or Fake?) - run by the "Noggin daily news" scheduled task
-Engine: `engine/news2.py` (look + sound) and `engine/make_news.py` (renders a day). Sample: `engine/days/news_sample2.py`.
-Style: dark modern news look, real photo per headline, NO song (MUSIC = None gives the ambient tension bed), no ticks.
+## News job (real stories only) - run by the "Noggin daily news" scheduled task
+Engine: `engine/news3.py` (look + sound) and `engine/make_news.py` (renders a day). Sample: `engine/days/news_sample3.py`.
+NO quiz, NO fake headlines, NO voting. Each video = 2-3 REAL stories: photo + punchy headline, then "WHAT HAPPENED" (1-2 sentences)
+with the verified source. Ends "Which one is the craziest? Comment 1, 2 or 3". Dark modern look, ambient bed, no song, no ticks.
+(news2.py = old Real-or-Fake format, not used any more.)
 
 1. **Target day:** Metricool `getScheduledPosts` (brand 7672444, Europe/Lisbon) from tomorrow to +7 days. Earliest day where the
    10:00 and/or 16:00 slot has no non-draft YouTube post. Make 1 video per free news slot (max 2). Nothing free -> report "nothing to do".
-2. **Find stories.** Each video = 3 headlines: 2 real + 1 fake, or 1 real + 2 fake (mix it up). Real stories:
-   - published in the last 7 days (prefer last 3), shocking / funny / weird / ironic / "dark humor" (bizarre mishaps nobody was hurt in,
-     absurd lawsuits and laws, cursed or creepy finds, animals behaving badly, embarrassing company or official fails, weird science).
+2. **Find stories** people will want to SHARE: the most recent (last 7 days, prefer last 3) jaw-dropping, funny, weird, ironic or
+   dark-humor-but-harmless real news (bizarre mishaps nobody was hurt in, absurd lawsuits and laws, creepy or cursed finds, animals
+   behaving badly, embarrassing company or official fails, record-breaking or "how is this real" science and space).
+   Pick the strongest one as story 1 (the first 2 seconds decide if people stay). Each video 2-3 stories with a common angle if possible.
    - NOT allowed: anyone dying or badly hurt, crime with victims, disasters, war, politics/elections, religion, mocking private people,
      anything about children, sex. If in doubt, skip it.
-   - Confirm each one on at least one trusted outlet (AP, Reuters, BBC, The Guardian, NYT, Washington Post, CNN, NBC, CBS, ABC, Fox News,
-     Al Jazeera, NPR, Sky News, The Independent, Euronews, NASA/ESA, Nature, Science, New Scientist, National Geographic, UPI Odd News)
-     by fetching the article itself. Use the article's real headline, outlet, date and full link. Never trust a headline from search alone.
+   - Confirm each story by fetching the article itself on a trusted outlet (AP, Reuters, BBC, The Guardian, NYT, Washington Post, CNN, NBC,
+     CBS, ABC, Fox News, Al Jazeera, NPR, Sky News, The Independent, Euronews, NASA/ESA, Nature, Science, New Scientist,
+     National Geographic, UPI Odd News). Use its real headline, outlet, date and full link. Never trust a headline from search alone.
+     Every number and detail on screen must match the article.
    - Check `engine/data/used_news.json`: never reuse a story.
-   - Fake headlines: believable but clearly false, about the same kind of topic; the "fix" says what is actually true (and must be true).
-   - Headline text you write: short, plain, punchy, under ~20 words, no emoji.
+   - Your headline: short, plain, punchy, under ~20 words, no emoji. Detail: 1-2 sentences, under ~30 words.
 3. **Photos** (one per headline, optional explain_photo / fix_photo): only free-license photos from Wikimedia Commons (includes NASA).
    Never news photos, never real people's faces, never logos. The cloud workspace can't reach Commons, so use the BUILT-IN browser on the
    owner's computer (load tools with ToolSearch "mcp__remote-devices__Claude_Browser__", max_results 64; commons.wikimedia.org is
@@ -74,14 +77,15 @@ Style: dark modern news look, real photo per headline, NO song (MUSIC = None giv
    `C:\Users\ahmi\Downloads\_to_delete\` if a shell is available (otherwise list them in the final report).
    Write the credit on the photo (`"Place | Author / License"`) and in the description.
    If the computer or browser can't be reached: STOP the news job and report it. Do not make news without photos.
-4. **Day file** `engine/days/news_YYYY_MM_DD.py` with `MUSIC = None` and
-   `NEWS = [dict(title=..., items=[3 items], description=...), ...]`. Items exactly like news_sample2.py, plus `source["link"]`
-   (full URL) for real ones. Title: curiosity hook under 60 chars, one emoji, e.g. "Only 1 of these is real 🤯 #shorts".
+4. **Day file** `engine/days/news_YYYY_MM_DD.py` with
+   `NEWS = [dict(title=..., hook=..., items=[2-3 items], description=...), ...]`. Items exactly like news_sample3.py (text, detail, photo,
+   credit, optional explain_photo/explain_credit, source with outlet/date/headline/url/link). hook = on-screen opener, e.g.
+   "3 things that actually happened this week". Title: curiosity hook under 60 chars, one emoji, e.g. "This really happened this week 😳 #shorts".
    Description: one hook line, then "Sources:" with outlet + full link for every real story, then "Photos (Wikimedia Commons):" credits,
    then `#shorts #news #realorfake #didyouknow #noggin`.
 5. **Render:** `cd engine && python3 make_news.py days/news_YYYY_MM_DD.py YYYY-MM-DD`, then open `/tmp/news_check_YYYY-MM-DD.png` with Read
-   and check every frame (text fits, nothing overlaps, right verdict). Fix and re-render if needed (remove that date's entries from
+   and check every frame (text fits, nothing overlaps, facts match the articles). Fix and re-render if needed (remove that date's entries from
    used_news.json and delete videos/YYYY-MM-DD/news-* first).
 6. **Publish:** commit + push (fetch/rebase first), then schedule each entry of `videos/YYYY-MM-DD/news_manifest.json` in its free slot with
-   the same createScheduledPost body as the puzzles, but tags ["news", "real or fake", "weird news", "trivia", "noggin", "shorts"].
-7. **Report:** date, titles, every headline with REAL/FAKE and its source link.
+   the same createScheduledPost body as the puzzles, but tags ["news", "weird news", "crazy news", "this week", "noggin", "shorts"].
+7. **Report:** date, titles, every headline with its source link.
