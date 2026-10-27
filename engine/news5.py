@@ -50,7 +50,7 @@ def make_video(slide_paths, out, kinds):
     segs, total = timeline(kinds); NF = int(round(total*FPS))
     wav = out + ".wav"; make_audio(kinds, wav)
     cmd = ["ffmpeg", "-y", "-loglevel", "error", "-f", "rawvideo", "-pix_fmt", "rgb24", "-s", f"{W}x{H}", "-r", str(FPS),
-           "-i", "-", "-i", wav, "-c:v", "libx264", "-preset", "veryfast", "-crf", "19", "-pix_fmt", "yuv420p",
+           "-i", "-", "-i", wav, "-c:v", "libx264", "-preset", "veryfast", "-crf", "23", "-maxrate", "6M", "-bufsize", "12M", "-pix_fmt", "yuv420p",
            "-c:a", "aac", "-b:a", "192k", "-shortest", "-movflags", "+faststart", out]
     ff = subprocess.Popen(cmd, stdin=subprocess.PIPE)
     news4.H = H; grains = news4.grain_layers(); rj = random.Random(4); jit = (0, 0)
@@ -76,8 +76,8 @@ def make_video(slide_paths, out, kinds):
         if i == 0 and t < 0.35:                             # cover lands like a stamp
             s = 1.06 - 0.06*ease_io(t/0.35); big = fr.resize((int(W*s), int(H*s)), Image.BILINEAR)
             fr = big.crop(((big.width - W)//2, (big.height - H)//2, (big.width - W)//2 + W, (big.height - H)//2 + H))
-        fr = fr.convert("RGBA"); fr.alpha_composite(grains[(f//2) % len(grains)])
-        if f % 3 == 0: jit = (rj.randint(-2, 2), rj.randint(-2, 2))
+        fr = fr.convert("RGBA"); fr.alpha_composite(grains[(f//6) % len(grains)])
+        if f % 6 == 0: jit = (rj.randint(-1, 1), rj.randint(-1, 1))
         out_fr = Image.new("RGB", (W, H), news4.PAPER); out_fr.paste(fr.convert("RGB"), jit)
         if f % 5 == 0: out_fr = ImageEnhance.Brightness(out_fr).enhance(1 + rj.uniform(-0.012, 0.012))
         ff.stdin.write(out_fr.tobytes())
