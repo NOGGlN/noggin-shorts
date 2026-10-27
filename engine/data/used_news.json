@@ -1,0 +1,20 @@
+[
+ {
+  "date": "2026-10-27",
+  "text": "A man left Chile on foot in 1998. He just made it back to England, 28 years later.",
+  "real": true,
+  "link": "https://foxnews.com/travel/veteran-walked-across-four-continents-swam-english-channel-return-home"
+ },
+ {
+  "date": "2026-10-27",
+  "text": "Scientists found a planet made of solid gold orbiting our Sun.",
+  "real": false,
+  "link": ""
+ },
+ {
+  "date": "2026-10-27",
+  "text": "Divers found a ship that sank up to 4,700 years ago.",
+  "real": true,
+  "link": "https://aljazeera.com/news/2026/10/14/worlds-oldest-shipwreck-found-off-coast-of-turkiye"
+ }
+]

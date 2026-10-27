@@ -165,7 +165,9 @@ def make_video(items, out, wav):
     d.text((160 + d.textlength("NOGGIN", font=F(40, "Bold")) + 12, 122), "NEWS", font=F(40, "Light"), fill=WHITE, anchor="lm")
     rof = chip("REAL OR FAKE?", ACC, (15, 15, 20), 30)
     nreal = sum(it["real"] for it in items)
-    hook = text_block(f"{nreal} are real. {len(items) - nreal} is fake. Spot it.", 960, 70, 44, w="Medium", fill=(235, 235, 245), align="center")
+    nf = len(items) - nreal
+    hook_txt = f"{nreal} {'is' if nreal == 1 else 'are'} real. {nf} {'is' if nf == 1 else 'are'} fake. Spot {'it' if nf == 1 else 'them'}."
+    hook = text_block(hook_txt, 960, 70, 44, w="Medium", fill=(235, 235, 245), align="center")
     o1 = text_block("How many did you get?", 960, 120, 86, align="center"); o2 = text_block("Comment your score", 960, 70, 50, w="Medium", fill=ACC, align="center")
     for s in segs:
         it = items[s["i"]]
