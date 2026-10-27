@@ -1,4 +1,4 @@
-"""Render one day's real-news Shorts (max 2 per day, 2-3 real stories each, engine news4.py "The Noggin Times").
+"""Render one day's real-news Shorts (max 2 per day, 2-3 real stories each, engine: carousel.py slides; news5.py turns the 9:16 slides into the YouTube Short).
 
 Usage:  python3 make_news.py days/news_YYYY_MM_DD.py YYYY-MM-DD
 The day module defines NEWS = [ dict(title=<YouTube title>, items=[...3 items as in news2.py...], description=<text>), ... ]
@@ -10,7 +10,7 @@ and saves a check sheet of key frames to /tmp/news_check_<date>.png.
 import json, os, re, subprocess, sys
 HERE = os.path.dirname(os.path.abspath(__file__)); sys.path.insert(0, HERE)
 import glob, datetime
-import news2, news3, news4, carousel
+import news2, news3, news4, news5, carousel
 
 def norm(t): return re.sub(r"[^a-z0-9 ]", "", t.lower()).strip()
 
@@ -48,14 +48,13 @@ if __name__ == "__main__":
         issue = 1 + sum(len(json.load(open(m))) for m in glob.glob(os.path.join(HERE, "..", "videos", "*", "news_manifest.json"))
                         if os.path.dirname(m) != os.path.abspath(out)) + (n - 1)
         dtxt = datetime.date.fromisoformat(date).strftime("%A, %B %d, %Y").replace(" 0", " ")
-        news4.make_audio(items, wav); segs, total = news4.make_video(items, mp4, wav, v.get("hook"), issue, dtxt, briefs); os.remove(wav)
-        for s in segs:
-            for tt in (s["start"] + 0.8, s["explain"] - 0.5, s["explain"] + 1.5):
-                frames.append((mp4, tt))
-        # swipeable photo versions: Instagram 4:5 and TikTok 9:16
+        # swipeable photo versions: Instagram 4:5 and TikTok 9:16 (the YouTube Short flips through the same 9:16 slides)
         cdir = os.path.join(out, f"news-{n}-carousel"); base = f"https://raw.githubusercontent.com/NOGGlN/noggin-shorts/main/videos/{date}/news-{n}-carousel/"
         ig = carousel.make_carousel(items, briefs, v.get("hook"), cdir, "ig", 1350, issue, dtxt)
         tt = carousel.make_carousel(items, briefs, v.get("hook"), cdir, "tt", 1920, issue, dtxt)
+        kinds = news5.kinds_for(len(items), len(tt) - 2 - 2*len(items))
+        segs, total = news5.make_video(tt, mp4, kinds)
+        for a, b in segs: frames.append((mp4, (a + b)/2))
         assert len(ig) <= 20 and len(tt) <= 35
         caption = v.get("caption") or v["description"].replace("#shorts ", "")
         manifest.append(dict(n=n, file=fn, ig_media=[base + os.path.basename(p) for p in ig], tt_media=[base + os.path.basename(p) for p in tt],
@@ -64,11 +63,11 @@ if __name__ == "__main__":
                              description=v["description"], stories=[i["text"] for i in items]))
         print("done", fn, round(total, 1), "s", flush=True)
     from PIL import Image
-    sheet = Image.new("RGB", (9*240, len(day.NEWS)*427), "grey")
+    sheet = Image.new("RGB", (10*240, len(day.NEWS)*427), "grey")
     for k, (mp4, tt) in enumerate(frames):
         png = f"/tmp/_nf_{k}.png"
         subprocess.run(["ffmpeg", "-y", "-v", "error", "-ss", str(tt), "-i", mp4, "-frames:v", "1", "-vf", "scale=240:-1", png], check=True)
-        sheet.paste(Image.open(png), ((k % 9)*240, (k//9)*427)); os.remove(png)
+        sheet.paste(Image.open(png), ((k % 10)*240, (k//10)*427)); os.remove(png)
     sheet.save(f"/tmp/news_check_{date}.png"); print("check sheet:", f"/tmp/news_check_{date}.png")
     json.dump(manifest, open(os.path.join(out, "news_manifest.json"), "w"), ensure_ascii=False, indent=1)
     json.dump(used + new, open(lp, "w"), ensure_ascii=False, indent=1)

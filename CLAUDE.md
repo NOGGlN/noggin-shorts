@@ -56,8 +56,10 @@ Posts with draft=true don't count. The 16:00 slot is no longer used.
 ## News job (real stories only) - run by the "Noggin daily news" scheduled task
 Format: **"The Noggin Times"** - a retro newspaper look made for Gen Z's analog/print revival trend: paper texture and grain,
 Fraktur masthead, Times-style headlines, typewriter labels, halftone black-and-white photos with tape corners, red "EXTRA!" stamp
-on the first story, page-turn transitions, "Letters to the Editor" ending. Engine: `engine/news4.py`; `engine/make_news.py` renders
-a day (it numbers the issues and prints the publish date on the masthead). Sample: `engine/days/news_sample4.py` (copy its style).
+on the cover, page-turn transitions, "Letters to the Editor" ending. Engine: `engine/carousel.py` makes the slides
+(cover, story, by-the-numbers, story, by-the-numbers, In Brief grid, In Brief rows, comment+follow - every slide different);
+`engine/news5.py` turns the 9:16 slides into the YouTube Short (each slide held long enough to read, slow push-in, page turns);
+`engine/make_news.py` renders a whole day (numbers the issues, prints the publish date on the masthead). news4.py = old video layout. Sample: `engine/days/news_sample4.py` (copy its style).
 NO quiz, NO fake headlines, NO voting. Each video = 2-3 REAL main stories in the left column: photo + headline, then a lead
 (1-2 sentences, drop cap), then FINE PRINT (`body`, 50-80 words, more real detail so it reads like a real article), then the source.
 Right column on every page: "IN BRIEF" sidebar with 3-5 short real items (see step 2b) - a DIFFERENT set of briefs on each story page.
