@@ -157,18 +157,70 @@ def brief_cell(pg, b, x, y, w, h):
     if b.get("price"): d.text((x, y + 2), b["price"], font=F("type", 26), fill=INK); y += 34
     d.text((x, y + 2), f"Source: {b['source']['outlet']}, {b['source']['date']}", font=F("ital", 21), fill=GREY)
 
+def _trim_white(src, w, ph):
+    g = ImageOps.grayscale(src); bgv = g.getpixel((2, 2))
+    if bgv > 225:
+        bb = g.point(lambda v: 255 if v < bgv - 18 else 0).getbbox()
+        if bb:
+            pw_, ph_ = bb[2] - bb[0], bb[3] - bb[1]
+            src = src.crop((max(0, bb[0] - pw_//10), max(0, bb[1] - ph_//10), min(src.width, bb[2] + pw_//10), min(src.height, bb[3] + ph_//10)))
+            c = Image.new("RGB", (max(src.width, int(src.height*w/ph)), max(src.height, int(src.width*ph/w))), (bgv,)*3)
+            c.paste(src, ((c.width - src.width)//2, (c.height - src.height)//2)); src = c
+    return src
+
+def price_tag(txt, sz=30):
+    f = F("type", sz); tw = MEAS.textlength(txt, font=f)
+    im = Image.new("RGBA", (int(tw + 50), sz + 26), (0, 0, 0, 0)); d = ImageDraw.Draw(im)
+    d.polygon([(0, im.height/2), (16, 0), (im.width, 0), (im.width, im.height), (16, im.height)], fill=RED)
+    d.ellipse((10, im.height/2 - 4, 18, im.height/2 + 4), fill=PAPER)
+    d.text((30, im.height/2), txt, font=f, fill=PAPER, anchor="lm")
+    return im.rotate(-3, expand=True, resample=Image.BICUBIC)
+
+def brief_rows_slide(h, chunk, issue, date_txt, label):
+    """Second In Brief style: one row per item - photo left, text right, red price tag."""
+    pg = paper(h, seed=61); y = mini_masthead(pg, issue, date_txt, label); d = ImageDraw.Draw(pg)
+    top = y + 20; bottom = h - 120; rh = (bottom - top)//len(chunk); pw = 380
+    for k, b in enumerate(chunk):
+        ry = top + k*rh
+        if k: d.line((M, ry - 6, 1080 - M, ry - 6), fill=INK, width=1)
+        ph = rh - 34
+        if b.get("photo"):
+            src = _trim_white(load_photo(b["photo"]), pw, ph)
+            pic = halftone(src, (pw, ph), cell=4); pg.alpha_composite(pic, (M, ry + 8)); d.rectangle((M, ry + 8, M + pw - 1, ry + 8 + ph - 1), outline=INK, width=2)
+            if b.get("credit"):
+                cf = F("ital", 15); tw = MEAS.textlength(b["credit"], font=cf)
+                d.rectangle((M + pw - tw - 12, ry + 8 + ph - 22, M + pw - 2, ry + 8 + ph - 2), fill=PAPER); d.text((M + pw - 6, ry + 8 + ph - 5), b["credit"], font=cf, fill=GREY, anchor="rs")
+        tx = M + pw + 30; tw_ = 1080 - M - tx; ty = ry + 8
+        d.text((tx, ty), b["cat"].upper(), font=F("type", 24), fill=RED); ty += 34
+        f, ls, lh = fit_lines(b["title"], "head", tw_, 110 if h < 1500 else 130, 36 if h < 1500 else 42, lh=1.1, minsz=26)
+        for l in ls: d.text((tx, ty), l, font=f, fill=INK); ty += lh
+        ty += 8; tf = F("body", 25 if h < 1500 else 29)
+        for l in wrap(b["text"], tf, tw_)[:4 if h < 1500 else 6]: d.text((tx, ty), l, font=tf, fill=INK); ty += int(tf.size*1.2)
+        d.text((tx, ty + 4), f"Source: {b['source']['outlet']}, {b['source']['date']}", font=F("ital", 20), fill=GREY); ty += 34
+        if b.get("price"):
+            tag = price_tag(b["price"], 24 if h < 1500 else 30)
+            if ty + tag.height < ry + rh - 4: pg.alpha_composite(tag, (tx - 4, ty))
+            else:   # no room under the text: pin it on the photo, never wider than the photo
+                sz = 24
+                while tag.width > pw - 10 and sz > 14: sz -= 2; tag = price_tag(b["price"], sz)
+                pg.alpha_composite(tag, (M - 6, ry + 8 + ph - tag.height - 26))
+    foot(pg, h, "SWIPE  >>")
+    return grain(pg, h, 50)
+
 def brief_slides(h, briefs, issue, date_txt, start_k):
-    out = []
-    for p in range(0, len(briefs), 4):
-        chunk = briefs[p:p + 4]
-        pg = paper(h, seed=40 + p); y = mini_masthead(pg, issue, date_txt, f"IN BRIEF  |  {p//4 + 1} OF {math.ceil(len(briefs)/4)}")
+    out = []; chunks = [briefs[p:p + 4] for p in range(0, len(briefs), 4)]
+    for ci, chunk in enumerate(chunks):
+        label = f"IN BRIEF  |  {ci + 1} OF {len(chunks)}"
+        if ci % 2 == 1:
+            out.append(brief_rows_slide(h, chunk, issue, date_txt, label)); continue
+        pg = paper(h, seed=40 + ci); y = mini_masthead(pg, issue, date_txt, label)
         d = ImageDraw.Draw(pg); top = y + 20; bottom = h - 120
         cw = (CW - 40)//2; chh = (bottom - top - 40)//2
         d.line((M + cw + 20, top, M + cw + 20, bottom - 10), fill=INK, width=1); d.line((M, top + chh + 20, 1080 - M, top + chh + 20), fill=INK, width=1)
         for k, b in enumerate(chunk):
             brief_cell(pg, b, M + (k % 2)*(cw + 40), top + (k//2)*(chh + 40), cw, chh)
         foot(pg, h, "SWIPE  >>")
-        out.append(grain(pg, h, 30 + p))
+        out.append(grain(pg, h, 30 + ci))
     return out
 
 def outro_slide(h, n, issue, date_txt):
