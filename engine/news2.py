@@ -256,14 +256,31 @@ def make_video(items, out, wav):
     ff.stdin.close(); ff.wait()
     return segs, total
 
+def ambient_bed(N, sr, seed=11):
+    """Documentary-style tension bed: no melody. Low drone, slow sub pulse, filtered air noise, faint shimmer."""
+    rng = np.random.default_rng(seed); x = np.arange(N)/sr
+    def lp(v, k): return np.convolve(v, np.ones(k)/k, mode="same")
+    drone = sum(a*np.sin(2*np.pi*f*x + p) for a, f, p in ((0.30, 55.0, 0), (0.18, 55.4, 1.0), (0.12, 82.4, 2.0), (0.06, 110.2, 0.5)))
+    drone *= 0.75 + 0.25*np.sin(2*np.pi*0.07*x)
+    beat = 60/96; ph = (x % beat)/beat                                   # soft sub pulse, 96 bpm
+    pulse = 0.35*np.sin(2*np.pi*48*x)*np.exp(-ph*9)
+    air = lp(rng.standard_normal(N), 40)*0.5; air = air - lp(air, 400)  # band-limited hiss
+    air *= 0.6 + 0.4*np.sin(2*np.pi*0.11*x + 1)
+    shim = sum(0.025*np.sin(2*np.pi*f*x)*(0.5 + 0.5*np.sin(2*np.pi*r*x + q)) for f, r, q in ((1760, 0.13, 0), (2637, 0.09, 2), (3520, 0.17, 4)))
+    L = drone + pulse + air*0.9 + shim; R = drone + pulse + np.roll(air, 331)*0.9 + np.roll(shim, 557)
+    out = np.stack([L, R], 1); return out/np.abs(out).max()*0.8
+
 def make_audio(items, music, path):
     """Music bed from the given track plus soft cinematic hits. No ticks, no cartoon sounds."""
     segs, total = timeline(items); sr = 44100; N = int(sr*(total + 0.5))
-    mpath, mstart = music
-    raw = subprocess.run(["ffmpeg", "-v", "error", "-ss", str(mstart), "-t", str(total + 1), "-i", os.path.join(HERE, mpath),
-                          "-ac", "2", "-ar", str(sr), "-f", "s16le", "-"], capture_output=True, check=True).stdout
-    mus = np.frombuffer(raw, np.int16).reshape(-1, 2).astype(float)/32768
-    m = np.zeros((N, 2)); m[:min(N, len(mus))] = mus[:N]
+    if music:
+        mpath, mstart = music
+        raw = subprocess.run(["ffmpeg", "-v", "error", "-ss", str(mstart), "-t", str(total + 1), "-i", os.path.join(HERE, mpath),
+                              "-ac", "2", "-ar", str(sr), "-f", "s16le", "-"], capture_output=True, check=True).stdout
+        mus = np.frombuffer(raw, np.int16).reshape(-1, 2).astype(float)/32768
+        m = np.zeros((N, 2)); m[:min(N, len(mus))] = mus[:N]
+    else:
+        m = ambient_bed(N, sr)
     fx = np.zeros(N); rng = np.random.default_rng(7)
     def add(sig, t):
         i = int(t*sr); n = min(len(sig), N - i)
@@ -298,7 +315,7 @@ def make_audio(items, music, path):
         whoosh(s["explain"] + 0.1, 0.45, 0.28)
     sub_hit(segs[-1]["end"], 0.6)
     # duck the music while reading less, drop it during the riser, pump it back on the reveal
-    g = np.full(N, 0.55)
+    g = np.full(N, 0.5)
     for s in segs:
         a, b = int(s["vote"]*sr), int(s["reveal"]*sr); g[a:b] = np.linspace(0.5, 0.18, b - a)
         c = int((s["reveal"] + 0.6)*sr); g[b:c] = np.linspace(0.25, 0.55, c - b)

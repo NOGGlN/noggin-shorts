@@ -19,7 +19,7 @@ ITEMS = [
                      headline="World's oldest shipwreck found off coast of Turkiye",
                      url="aljazeera.com")),
 ]
-MUSIC = ("assets/music/atlasaudio-trap-beat-590006.mp3", 11.5)
+MUSIC = None   # synthesized ambient bed, no songs
 
 DESCRIPTION = """Real or fake? Comment your score 👇
 
