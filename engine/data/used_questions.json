@@ -322,5 +322,41 @@
   "gen": "d1031_witch_hat",
   "question": "d1031_witch_hat: TRICK OR TREAT! -> $0.50",
   "answer": "$0.50"
+ },
+ {
+  "date": "2026-11-01",
+  "gen": "d1101_tallest",
+  "question": "d1101_tallest: WHICH IS BIGGER? -> Burj Khalifa",
+  "answer": "Burj Khalifa"
+ },
+ {
+  "date": "2026-11-01",
+  "gen": "d1101_moon_pluto",
+  "question": "d1101_moon_pluto: SPACE SIZE-OFF! -> Our Moon",
+  "answer": "Our Moon"
+ },
+ {
+  "date": "2026-11-01",
+  "gen": "d1101_ice_melt",
+  "question": "d1101_ice_melt: HEAVY QUESTION! -> Same weight",
+  "answer": "Same weight"
+ },
+ {
+  "date": "2026-11-01",
+  "gen": "d1101_npc",
+  "question": "d1101_npc: GAMER TRIVIA! -> Non-player character",
+  "answer": "Non-player character"
+ },
+ {
+  "date": "2026-11-01",
+  "gen": "d1101_bat",
+  "question": "d1101_bat: ANIMAL FACT! -> Bat",
+  "answer": "Bat"
+ },
+ {
+  "date": "2026-11-01",
+  "gen": "d1101_timezones",
+  "question": "d1101_timezones: WORLD TRIVIA! -> France",
+  "answer": "France"
  }
 ]
