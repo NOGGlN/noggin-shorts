@@ -64,11 +64,16 @@ def cover_slide(h, items, hook, issue, date_txt):
     y = headline(pg, hook, y + 60, 260 if h > 1500 else 150, 84, 56) + 10
     d.line((M, y, 1080 - M, y), fill=INK, width=2); y += 30
     ph = int((h - 120 - y - 60) - 60 - 46 - sum(min(2, len(wrap(it["text"], F("body", 38), CW - 70)))*44 + 18 for it in items))
+    compact = ph < 320   # short (4:5) slide with a long list: drop the list so the photo stays big
+    if compact: ph = int(h - 120 - y - 60 - 60 - 40)
     first = load_photo(items[0]["photo"]); photo_box(pg, first, M, y, CW, ph, items[0]["credit"], seed=3)
-    st = stamp("EXTRA!", 110 if h < 1500 else 140, ang=-9); pg.alpha_composite(st, (540 - st.width//2, y + ph//2 - st.height//2))
+    st = stamp("EXTRA!", 110 if h < 1500 else 140, ang=-9); pg.alpha_composite(st, (440 - st.width//2, y + ph//3 - st.height//2))   # upper-left third, so the subject stays visible
     y += ph + 60
-    d.text((M, y), "INSIDE THIS ISSUE", font=F("type", 28), fill=INK); y += 46
-    for k, it in enumerate(items):
+    if compact:
+        d.text((M, y), f"INSIDE THIS ISSUE: {len(items)} REAL STORIES", font=F("type", 28), fill=INK)
+    else:
+        d.text((M, y), "INSIDE THIS ISSUE", font=F("type", 28), fill=INK); y += 46
+    for k, it in enumerate([] if compact else items):
         f, ls, lh = fit_lines(it["text"], "body", CW - 70, 90, 38, lh=1.15, minsz=28)
         d.text((M, y), f"{k + 1}", font=F("head", 52), fill=RED)
         for l in ls[:2]: d.text((M + 60, y + 6), l, font=f, fill=INK); y += lh
@@ -208,7 +213,10 @@ def brief_rows_slide(h, chunk, issue, date_txt, label):
     return grain(pg, h, 50)
 
 def brief_slides(h, briefs, issue, date_txt, start_k):
-    out = []; chunks = [briefs[p:p + 4] for p in range(0, len(briefs), 4)]
+    # split evenly (e.g. 9 briefs -> 3+3+3, not 4+4+1) so no slide ends up nearly empty
+    out = []; nc = max(1, -(-len(briefs) // 4)); sizes = [len(briefs) // nc + (1 if i < len(briefs) % nc else 0) for i in range(nc)]
+    chunks, p = [], 0
+    for s in sizes: chunks.append(briefs[p:p + s]); p += s
     for ci, chunk in enumerate(chunks):
         label = f"IN BRIEF  |  {ci + 1} OF {len(chunks)}"
         if ci % 2 == 1:
