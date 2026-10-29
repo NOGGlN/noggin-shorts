@@ -2,7 +2,7 @@
 
 Every slide is different (cover, story, by-the-numbers, story, by-the-numbers, In Brief grid, In Brief rows, comment+follow),
 so nothing on screen repeats. Each slide holds long enough to read (by slide type), with a slow push-in, paper grain flicker,
-and a page-turn into the next one. Sound: the ambient tension bed + paper rustle on every turn + stamp thud on the cover.
+and a page-turn into the next one. Sound: a soft, calm pad (no drone, no sub pulse, no high whine) + paper rustle on every turn + stamp thud on the cover.
 
 Usage (normally called by make_news.py):  news5.make_video(tt_slide_paths, out_mp4, kinds)
 kinds = list like ["cover","story","numbers","story","numbers","brief","brief","outro"] (decides how long each slide stays).
@@ -11,12 +11,35 @@ import math, os, random, subprocess, sys, wave
 import numpy as np
 from PIL import Image, ImageEnhance
 HERE = os.path.dirname(os.path.abspath(__file__)); sys.path.insert(0, HERE)
-from news2 import ambient_bed, ease_io
+from news2 import ease_io
 import news4
 
 W, H, FPS = 1080, 1920, 30
 TURN = 0.5
 HOLD = {"cover": 3.6, "story": 4.6, "numbers": 7.0, "brief": 6.5, "outro": 3.6}
+
+
+def calm_bed(N, sr, seed=11):
+    """Calm, warm pad for the news Shorts: slow chord swells (C - Am - F - G), gently low-passed, no beating drone,
+    no sub pulse and no high shimmer (those made the old bed tiring). Very soft room-tone air underneath."""
+    rng = np.random.default_rng(seed); x = np.arange(N)/sr
+    def lp(v, k): return np.convolve(v, np.ones(k)/k, mode="same")
+    chords = [(130.81, 164.81, 196.00, 246.94), (110.00, 130.81, 164.81, 196.00),
+              (87.31, 130.81, 174.61, 220.00), (98.00, 123.47, 146.83, 196.00)]
+    CH = 8.0; out = np.zeros(N)
+    for k in range(int(N/sr/CH) + 2):
+        t0 = k*CH - 2.0; i0 = max(0, int(t0*sr)); i1 = min(N, int((t0 + CH + 4.0)*sr))
+        if i1 <= i0: continue
+        xx = x[i0:i1]; u = (xx - t0)/(CH + 4.0)
+        env = np.sin(np.pi*np.clip(u, 0, 1))**2                       # slow swell in and out, overlapping the next chord
+        for j, f in enumerate(chords[k % 4]):
+            a = 0.22/(1 + j*0.35)
+            out[i0:i1] += env*a*(np.sin(2*np.pi*f*xx + j) + 0.25*np.sin(2*np.pi*2*f*xx + j)*0.5)
+    out = lp(lp(out, 6), 6)                                            # soften the top end
+    air = lp(rng.standard_normal(N), 120); air = (air - lp(air, 2000))*0.6
+    L = out + air*0.08; R = np.roll(out, 220) + np.roll(air, 331)*0.08
+    st = np.stack([L, R], 1); return st/np.abs(st).max()*0.8
+
 
 def timeline(kinds):
     t, segs = 0.0, []
@@ -26,12 +49,12 @@ def timeline(kinds):
 
 def make_audio(kinds, path):
     segs, total = timeline(kinds); sr = 44100; N = int(sr*(total + 0.5))
-    m = ambient_bed(N, sr); fx = np.zeros(N); rng = np.random.default_rng(21)
+    m = calm_bed(N, sr); fx = np.zeros(N); rng = np.random.default_rng(21)
     def add(sig, t):
         i = int(t*sr); n = min(len(sig), N - i)
         if n > 0 and i >= 0: fx[i:i + n] += sig[:n]
     def lp(x, k): return np.convolve(x, np.ones(k)/k, mode="same")
-    def rustle(t, dd=0.55, a=0.55):
+    def rustle(t, dd=0.55, a=0.35):
         x = rng.standard_normal(int(dd*sr)); bp = lp(x, 3) - lp(x, 25); e = np.sin(np.linspace(0, np.pi, len(x)))**1.5
         cr = (rng.random(len(x)) < 0.004)*rng.standard_normal(len(x))*3; add(a*(bp*e + lp(cr, 2)*e), t)
     def thud(t, a=0.9):
@@ -39,8 +62,8 @@ def make_audio(kinds, path):
         n = rng.standard_normal(int(0.05*sr)); add(0.35*lp(n, 6)*np.exp(-np.arange(len(n))/(sr*0.012)), t)
     thud(0.15)
     for a, b in segs[1:]: rustle(a - 0.08)
-    g = np.full(N, 0.45); fi = int(0.3*sr); g[:fi] *= np.linspace(0, 1, fi); fo = int(1.2*sr); g[-fo:] *= np.linspace(1, 0, fo)
-    out = m*g[:, None] + fx[:, None]; out = out/np.abs(out).max()*0.92
+    g = np.full(N, 0.40); fi = int(1.0*sr); g[:fi] *= np.linspace(0, 1, fi); fo = int(1.2*sr); g[-fo:] *= np.linspace(1, 0, fo)
+    out = m*g[:, None] + fx[:, None]; out = out/np.abs(out).max()*0.80
     with wave.open(path, "wb") as w: w.setnchannels(2); w.setsampwidth(2); w.setframerate(sr); w.writeframes((out*32767).astype(np.int16).tobytes())
     return total
 
