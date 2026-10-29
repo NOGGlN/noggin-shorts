@@ -9,6 +9,7 @@ Every day, on all three networks (YouTube @NOGGIN, Instagram @nogglndaily, TikTo
 - **Puzzle 1 at 12:00 on all three.**
 - **Puzzle 2 at 16:00 on YouTube, and 18:00 on Instagram + TikTok.**
   (The puzzle scheduled task; its prompt overrides the old 7-a-day rule below. Same video: YouTube Short, Instagram Reel, TikTok video.)
+- **1 Noggin Battle at 14:00 on Instagram + TikTok only** ("Battle job" at the end; not on YouTube).
 These times come from Metricool's best-time-to-post data (YouTube peaks ~16:00; Instagram and TikTok peak 10:00 and 18:00).
 Re-check them about once a month with getBestTimeToPostByNetwork and tell the owner if they shift. Posts with draft=true don't count.
 
@@ -149,3 +150,25 @@ made by `engine/carousel.py` (cover, 2 slides per story, In Brief grid slides, L
    Each call: "autoPublish": true, "draft": false, "descendants": [], "firstCommentText": "", "hasNotReadNotes": false, "mediaAltText": [],
    "shortener": false, "smartLinkData": {"ids": []}. If one network fails, still schedule the others and report the error.
 7. **Report:** date, titles, every headline and brief with its source link, and which of YouTube / Instagram / TikTok got scheduled.
+
+
+## Battle job - run by the "Noggin daily battle" scheduled task
+A ball battle royale: 16-30 contestants bounce inside a ring with a slowly spinning gap; whoever slips out is OUT, the last one inside wins.
+Contestants can be ANYTHING that has an emoji: countries (flag emoji fill the whole ball), foods, animals, snacks, sports, jobs, planets, fruits...
+Engine: `engine/battle.py` (physics + drawing + calm sound), `engine/make_battle.py` (CLI). Emoji come from assets/fonts/NotoColorEmoji.ttf.
+1. **Target day:** Metricool `getScheduledPosts` from tomorrow to +7 days; earliest day with no non-draft Instagram post at 14:00 Lisbon.
+2. **Battle file** `engine/battles/battle_YYYY_MM_DD.py` modelled on `battle_2026_10_30.py`: THEME (unique id, check `engine/data/used_battles.json`
+   and never repeat a theme), HEADLINE (2 short ALL-CAPS lines, e.g. ("24 SNACKS ENTER.", "ONLY 1 SURVIVES.")), CONTESTANTS (16-30 (name, emoji),
+   names under 16 chars, every emoji different), TITLE (hook under 60 chars, 1 emoji, no #shorts), CAPTION (title, a "pick your winner" line,
+   hashtags). Rotate theme types day to day (countries one day, food or animals the next). No real people, no brand logos, nothing about
+   politics, religion or war; country battles are just for fun, never call a country weak or bad.
+3. **Render:** `cd engine && python3 make_battle.py battles/battle_YYYY_MM_DD.py YYYY-MM-DD` (use `--stills` first for a quick look), then open
+   `/tmp/battle_check_YYYY-MM-DD.png` and check: every emoji drawn (no boxes), labels readable, the winner screen correct.
+4. **Publish:** commit + push (fetch/rebase first). Then schedule `videos/YYYY-MM-DD/battle-1.mp4` (manifest url) at 14:00 Lisbon:
+   a) Instagram Reel: providers [{"network": "instagram"}], "instagramData": {"type": "REEL", "showReelOnFeed": true, "isAiGenerated": false}, text = CAPTION.
+   b) TikTok video: providers [{"network": "tiktok"}], "tiktokData": {"privacyOption": "PUBLIC_TO_EVERYONE", "title": TITLE, "disableComment": false,
+      "disableDuet": false, "disableStitch": false, "commercialContentThirdParty": false, "commercialContentOwnBrand": false, "autoAddMusic": false,
+      "isAigc": false}, text = CAPTION.
+   Both with the usual fields ("autoPublish": true, "draft": false, "descendants": [], "firstCommentText": "", "hasNotReadNotes": false,
+   "mediaAltText": [], "shortener": false, "smartLinkData": {"ids": []}). If one network fails, still schedule the other and report it.
+5. **Report:** date, title, theme, winner, which networks were scheduled.

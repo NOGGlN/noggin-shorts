@@ -12,6 +12,6 @@ Photos (Wikimedia Commons, saved 2026-10-27):
 - photos/briefs/roadster_tesla_*.jpg: official product images from tesla.com/roadster (Image: Tesla)
 - photos/briefs/kobe_dunk_nike.jpg: official product image from nike.com/launch (Image: Nike)
 - photos/briefs/f1_antonelli_2026.jpg: "2026 Bahrain GP - Mercedes - Kimi Antonelli - Race" by Liauzh, CC BY-SA 4.0
-Fonts: KaTeX Fraktur (MIT), TeX Gyre Termes / Cursor (GUST Font License).
+Fonts: KaTeX Fraktur (MIT), TeX Gyre Termes / Cursor (GUST Font License), Inter (SIL OFL), Noto Color Emoji (SIL OFL; emoji images Apache 2.0, flags public domain).
 Music: tracks from the owner's own downloads folder (assets/music).
 Always list photo credits in the YouTube description.
