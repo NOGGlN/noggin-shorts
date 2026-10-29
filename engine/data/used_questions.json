@@ -358,5 +358,41 @@
   "gen": "d1101_timezones",
   "question": "d1101_timezones: WORLD TRIVIA! -> France",
   "answer": "France"
+ },
+ {
+  "date": "2026-11-02",
+  "gen": "d1102_wombat",
+  "question": "d1102_wombat: IMPOSSIBLE FACT! -> Cubes",
+  "answer": "Cubes"
+ },
+ {
+  "date": "2026-11-02",
+  "gen": "d1102_cleopatra",
+  "question": "d1102_cleopatra: TIME TRAVEL FACT! -> The Great Pyramid",
+  "answer": "The Great Pyramid"
+ },
+ {
+  "date": "2026-11-02",
+  "gen": "d1102_trex",
+  "question": "d1102_trex: DINO TRAP! -> None of them",
+  "answer": "None of them"
+ },
+ {
+  "date": "2026-11-02",
+  "gen": "d1102_coins",
+  "question": "d1102_coins: SPEED MATH! -> 120",
+  "answer": "120"
+ },
+ {
+  "date": "2026-11-02",
+  "gen": "d1102_highfive",
+  "question": "d1102_highfive: THINK FAST! -> 10",
+  "answer": "10"
+ },
+ {
+  "date": "2026-11-02",
+  "gen": "d1102_half",
+  "question": "d1102_half: TRAP QUESTION! -> 70",
+  "answer": "70"
  }
 ]
