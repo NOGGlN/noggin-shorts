@@ -394,5 +394,41 @@
   "gen": "d1102_half",
   "question": "d1102_half: TRAP QUESTION! -> 70",
   "answer": "70"
+ },
+ {
+  "date": "2026-11-03",
+  "gen": "d1103_fomo",
+  "question": "d1103_fomo: SLANG CHECK! -> Fear of missing out",
+  "answer": "Fear of missing out"
+ },
+ {
+  "date": "2026-11-03",
+  "gen": "d1103_pacman",
+  "question": "d1103_pacman: GAMING TRIVIA! -> Puck Man",
+  "answer": "Puck Man"
+ },
+ {
+  "date": "2026-11-03",
+  "gen": "d1103_months",
+  "question": "d1103_months: TRAP QUESTION! -> All 12",
+  "answer": "All 12"
+ },
+ {
+  "date": "2026-11-03",
+  "gen": "d1103_weekday",
+  "question": "d1103_weekday: SPOT THE MISTAKE! -> Wensday",
+  "answer": "Wensday"
+ },
+ {
+  "date": "2026-11-03",
+  "gen": "d1103_spelling",
+  "question": "d1103_spelling: SPOT THE MISTAKE! -> Seperate",
+  "answer": "Seperate"
+ },
+ {
+  "date": "2026-11-03",
+  "gen": "d1103_yolk",
+  "question": "d1103_yolk: TRAP QUESTION! -> Neither",
+  "answer": "Neither"
  }
 ]
