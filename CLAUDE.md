@@ -3,7 +3,15 @@
 This repo holds the Noggin YouTube Shorts video engine (`engine/`) and the rendered videos (`videos/<date>/`).
 Videos are published to the NOGGIN YouTube channel through Metricool (brand id `7672444`, timezone Europe/Lisbon).
 
-## Daily slots (Europe/Lisbon)
+## Current plan (from 31 Oct 2026): YouTube only, max 20 posts a month
+The owner is on Metricool's free plan: at most **20 published posts per calendar month** (every network post counts; failed posts don't).
+The owner chose three formats: **Would You Rather**, **Battle Royale** and **Satisfying Bounce** ("YouTube formats job" below).
+- Post days at **16:00 Lisbon**: **Monday + Friday = YouTube Short** (vertical), **Wednesday + Saturday = regular YouTube video** (16:9).
+  About 17 posts a month; never more than 20 (count before scheduling).
+- YouTube only. Instagram, TikTok, the news task, the battle task and the old puzzle Shorts are paused.
+- The sections further down (old daily puzzle job, News job, Battle job) are kept for reference / if the owner turns them back on.
+
+## Old daily slots (paused)
 Every day, on all three networks (YouTube @NOGGIN, Instagram @nogglndaily, TikTok @noggin.daily):
 - **1 news edition at 10:00 on all three** ("News job" at the end): YouTube = the video Short; Instagram + TikTok = the PHOTO carousel.
 - **Puzzle 1 at 12:00 on all three.**
@@ -172,3 +180,40 @@ Engine: `engine/battle.py` (physics + drawing + calm sound), `engine/make_battle
    Both with the usual fields ("autoPublish": true, "draft": false, "descendants": [], "firstCommentText": "", "hasNotReadNotes": false,
    "mediaAltText": [], "shortener": false, "smartLinkData": {"ids": []}). If one network fails, still schedule the other and report it.
 5. **Report:** date, title, theme, winner, which networks were scheduled.
+
+
+## YouTube formats job - run by the "Noggin YouTube uploads" scheduled task
+Engine: `engine/make_genre.py` + `engine/genres/` (`wyr.py`, `royale.py`, `bounce.py`, shared `gcommon.py`). Each spec is a JSON file in
+`engine/genre_days/YYYY_MM_DD_<kind>.json`. Two formats: `"format": "video"` = 1920x1080 regular video, `"format": "short"` = 1080x1920 Short (<60 s).
+No background music (owner's rule): only the synthesized sound effects the engine makes.
+
+1. **Slot + budget:** Metricool `getScheduledPosts` (brand 7672444, Europe/Lisbon; ranges of max 3 days, big results -> Python).
+   Ignore draft=true and ERROR posts. Next slot = earliest Monday/Wednesday/Friday/Saturday from tomorrow with no non-draft YouTube post at 16:00.
+   If that day is more than 3 days away: stop ("nothing"). Count non-draft, non-ERROR posts already in that calendar month (all networks);
+   if count + 1 > 20: stop ("monthly limit reached"). Mon/Fri -> `short`, Wed/Sat -> `video`.
+2. **Pick the kind:** read the last 2 entries across `videos/*/genre_manifest.json` (by date); use a kind (wyr / royale / bounce) that is NOT one
+   of those two, so the three rotate. If YouTube analytics (getAnalyticsDataByMetrics YTVV17 + YTVV06) clearly show one kind getting far more
+   views, it may appear more often, but never twice in a row.
+3. **Write the spec** (fields: kind, format, id (unique, e.g. "wyr-2026-11-04"), title, description, plus the kind's own fields):
+   - **wyr**: short = 3-4 questions, video = 10-12. Each `{"a": ["LINE 1", "LINE 2"], "ae": emoji, "b": [...], "be": emoji, "pick": 0|1, "why": "SHORT REASON"}`.
+     Fun, harmless, Gen Z dilemmas (superpowers, food, money, school, games, travel, internet life). Lines ALL CAPS, under ~22 characters each,
+     no emoji inside text. Every option must be NEW (make_genre.py refuses options in data/used_wyr.json). `why` = Noggin's funny one-liner,
+     under ~32 characters. Nothing about real people, politics, religion, violence, sex, or anything gross or scary for kids.
+   - **royale**: short = 16 contestants, video = 20-24. `contestants` = [["NAME", emoji]] (names ALL CAPS, max 14 chars, every emoji different),
+     `headline` = ["<N> <THINGS>. 1 RING.", "ONLY 1 SURVIVES"], `label` (e.g. "COUNTRY BATTLE"), `pick_line` (e.g. "PICK YOUR COUNTRY NOW"),
+     `id` = theme id, never reused (data/used_battles.json). Rotate themes: countries, foods, animals, fruits, sports, planets/space,
+     vehicles, desserts, jobs, weather... Country battles are just for fun; never call a country weak or bad.
+   - **bounce**: vary every run so no two look the same: `palette` (rainbow / fire / ice / neon), `start` [dx, dy] within ±150, `speed` 560-700,
+     `gravity` 900-1200, optional `hook` (2 lines) and `end_text`. `id` unique (data/used_bounce.json).
+   - **title**: hook under 60 characters with one emoji; Shorts end with " #shorts". e.g. "Would you rather... you have 4 seconds ⏱️",
+     "24 countries enter. Only 1 survives 🌍", "Every bounce it gets BIGGER 😳". **description**: 1-2 hook lines, "Comment your pick 👇",
+     then hashtags (#wouldyourather / #battleroyale / #satisfying, plus #noggin; Shorts add #shorts).
+4. **Render:** `cd engine && python3 make_genre.py --stills` style check first:
+   `python3 make_genre.py genre_days/<file>.json YYYY-MM-DD --stills`, open `/tmp/genre_check_YYYY-MM-DD_<kind>.jpg` with Read
+   (text fits, no emoji boxes, nothing overlapping), fix the spec if needed, then the real render without `--stills`.
+5. **Publish:** `git add -A`, commit, fetch + rebase, `git push origin HEAD:main`. Then Metricool `createScheduledPost` (blogId 7672444) with
+   media [manifest url], providers [{"network": "youtube"}], publicationDate {dateTime: "YYYY-MM-DDT16:00:00", timezone: "Europe/Lisbon"},
+   text = description, "youtubeData": {"title": title, "type": "short" or "video", "privacy": "public", "tags": [relevant tags, "noggin"],
+   "category": "ENTERTAINMENT", "madeForKids": false, "isAiGeneratedContent": false}, plus "autoPublish": true, "draft": false,
+   "descendants": [], "firstCommentText": "", "hasNotReadNotes": false, "mediaAltText": [], "shortener": false, "smartLinkData": {"ids": []}.
+6. **Report:** the date, kind, format, title, length, and posts used / 20 that month.
