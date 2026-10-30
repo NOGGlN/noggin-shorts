@@ -1,0 +1,65 @@
+{
+ "kind": "wyr",
+ "format": "short",
+ "id": "wyr-2026-11-02",
+ "title": "Would you rather... you have 4 seconds ⏱️ #shorts",
+ "description": "4 impossible choices, 4 seconds each. Do you agree with Noggin?\nComment your pick 👇\n\n#wouldyourather #noggin #shorts",
+ "questions": [
+  {
+   "a": [
+    "ALWAYS HAVE",
+    "FULL BATTERY"
+   ],
+   "ae": "🔋",
+   "b": [
+    "ALWAYS HAVE",
+    "PERFECT WIFI"
+   ],
+   "be": "📶",
+   "pick": 1,
+   "why": "BATTERY IS USELESS OFFLINE"
+  },
+  {
+   "a": [
+    "ONLY EAT PIZZA",
+    "FOREVER"
+   ],
+   "ae": "🍕",
+   "b": [
+    "NEVER EAT PIZZA",
+    "AGAIN"
+   ],
+   "be": "🚫",
+   "pick": 0,
+   "why": "PIZZA FOR LIFE IS A DREAM"
+  },
+  {
+   "a": [
+    "TALK TO",
+    "ANIMALS"
+   ],
+   "ae": "🐶",
+   "b": [
+    "SPEAK EVERY",
+    "LANGUAGE"
+   ],
+   "be": "🌍",
+   "pick": 0,
+   "why": "CATS HAVE THE BEST GOSSIP"
+  },
+  {
+   "a": [
+    "SKIP EVERY",
+    "AD FOREVER"
+   ],
+   "ae": "⏩",
+   "b": [
+    "NEVER WAIT IN",
+    "A LINE AGAIN"
+   ],
+   "be": "⏳",
+   "pick": 1,
+   "why": "LINES WASTE YOUR LIFE"
+  }
+ ]
+}

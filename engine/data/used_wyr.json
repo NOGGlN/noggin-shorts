@@ -1,1 +1,46 @@
-[]
+[
+ {
+  "date": "2026-11-02",
+  "a": [
+   "ALWAYS HAVE",
+   "FULL BATTERY"
+  ],
+  "b": [
+   "ALWAYS HAVE",
+   "PERFECT WIFI"
+  ]
+ },
+ {
+  "date": "2026-11-02",
+  "a": [
+   "ONLY EAT PIZZA",
+   "FOREVER"
+  ],
+  "b": [
+   "NEVER EAT PIZZA",
+   "AGAIN"
+  ]
+ },
+ {
+  "date": "2026-11-02",
+  "a": [
+   "TALK TO",
+   "ANIMALS"
+  ],
+  "b": [
+   "SPEAK EVERY",
+   "LANGUAGE"
+  ]
+ },
+ {
+  "date": "2026-11-02",
+  "a": [
+   "SKIP EVERY",
+   "AD FOREVER"
+  ],
+  "b": [
+   "NEVER WAIT IN",
+   "A LINE AGAIN"
+  ]
+ }
+]
