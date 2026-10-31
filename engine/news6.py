@@ -1,7 +1,7 @@
 """The Noggin Times, v6: cinematic "news you missed" Short (owner's reference: lifestyle-news reels).
 
 Look: full-screen real photos with a slow push/pan, warm film grade, grain and vignette; big centred serif captions
-that change phrase by phrase in sync with a calm male voiceover (tts.py, offline Piper/LibriTTS voice); a
+that change phrase by phrase in sync with a smooth British female voiceover (tts.py: Kokoro bf_emma, offline; ed["voice"]="us" = Piper male); a
 "This Week in / The Noggin Times" title card over a photo collage; an italic category collage; crossfades.
 No presenter on camera (never real people's faces). Sound: voiceover + a very soft ambient pad.
 
@@ -161,7 +161,8 @@ def build(ed, NB=2):
         s["t0"] = t; tt = t + (0.3 if i else 0.2)
         if s["kind"] == "cats": tt += 1.9
         for sent in s["vo"]:
-            a, sr, _ = tts.say(sent, seed=i); d = len(a)/sr; voice.append((tt, a))
+            a, sr, _ = tts.say_gb(sent) if ed.get("voice", "gb") == "gb" else tts.say(sent, seed=i)
+            d = len(a)/sr; voice.append((tt, a))
             ph = phrases(sent); tot = sum(w for _, w in ph); c = tt
             for txt, w in ph:
                 if s["kind"] == "photo": caps.append((c, c + d*w/tot, txt))

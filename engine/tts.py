@@ -143,3 +143,95 @@ def say(text, speaker=None, length=None, seed=0):
     if len(nz): audio = audio[max(0, nz[0] - int(0.03*sr)): nz[-1] + int(0.08*sr)]
     dur = len(audio)/sr; n = len(ids); wt = [(w, dur*a/n, dur*b/n) for w, a, b in spans]
     return audio/max(1e-6, np.abs(audio).max())*0.9, sr, wt
+
+
+# ================================================================ British voice (Kokoro-82M, Apache 2.0)
+# Model + voices: github.com/thewh1teagle/kokoro-onnx releases "model-files-v1.0" (kokoro-v1.0.int8.onnx, voices-v1.0.bin),
+# kept in assets/voice/kokoro/ (not in git; get_kokoro() downloads them). Vocab below = kokoro-onnx config.json.
+# British voices: bf_alice, bf_emma, bf_isabella, bf_lily (female), bm_daniel, bm_fable, bm_george, bm_lewis (male).
+KDIR = os.path.join(VDIR, "kokoro")
+KURL = "https://github.com/thewh1teagle/kokoro-onnx/releases/download/model-files-v1.0/"
+KVOICE = os.environ.get("NOGGIN_VOICE", "bf_emma")
+KSPEED = 0.9                                                  # a touch slower: smooth, unhurried read
+KVOCAB = {c: i for c, i in zip(';:,.!?—…"()“” ', [1, 2, 3, 4, 5, 6, 9, 10, 11, 12, 13, 14, 15, 16])}
+KVOCAB.update({"̃": 17, "ʣ": 18, "ʥ": 19, "ʦ": 20, "ʨ": 21, "ᵝ": 22, "ꭧ": 23, "A": 24, "I": 25, "O": 31, "Q": 33, "S": 35,
+    "T": 36, "W": 39, "Y": 41, "ᵊ": 42, "a": 43, "b": 44, "c": 45, "d": 46, "e": 47, "f": 48, "h": 50, "i": 51, "j": 52, "k": 53,
+    "l": 54, "m": 55, "n": 56, "o": 57, "p": 58, "q": 59, "r": 60, "s": 61, "t": 62, "u": 63, "v": 64, "w": 65, "x": 66, "y": 67,
+    "z": 68, "ɑ": 69, "ɐ": 70, "ɒ": 71, "æ": 72, "β": 75, "ɔ": 76, "ɕ": 77, "ç": 78, "ɖ": 80, "ð": 81, "ʤ": 82, "ə": 83, "ɚ": 85,
+    "ɛ": 86, "ɜ": 87, "ɟ": 90, "ɡ": 92, "ɥ": 99, "ɨ": 101, "ɪ": 102, "ʝ": 103, "ɯ": 110, "ɰ": 111, "ŋ": 112, "ɳ": 113, "ɲ": 114,
+    "ɴ": 115, "ø": 116, "ɸ": 118, "θ": 119, "œ": 120, "ɹ": 123, "ɾ": 125, "ɻ": 126, "ʁ": 128, "ɽ": 129, "ʂ": 130, "ʃ": 131, "ʈ": 132,
+    "ʧ": 133, "ʊ": 135, "ʋ": 136, "ʌ": 138, "ɣ": 139, "ɤ": 140, "χ": 142, "ʎ": 143, "ʒ": 147, "ʔ": 148, "ˈ": 156, "ˌ": 157, "ː": 158,
+    "ʰ": 162, "ʲ": 164, "↓": 169, "→": 171, "↗": 172, "↘": 173, "ᵻ": 177})
+# Southern British (RP-ish) vowels, misaki style: A=eɪ I=aɪ W=aʊ Y=ɔɪ Q=əʊ
+GBV = {"AA": "ɒ", "AE": "æ", "AH": "ʌ", "AO": "ɔː", "AW": "W", "AY": "I", "EH": "ɛ", "ER": "ɜː", "EY": "A", "IH": "ɪ",
+       "IY": "iː", "OW": "Q", "OY": "Y", "UH": "ʊ", "UW": "uː"}
+GBC = dict(C, CH="ʧ", JH="ʤ")
+BATH = set("after last class glass past fast ask asked can't half dance plant chance answer path bath laugh grass castle example "
+           "rather master father calm palm drama banana pasta last-minute vast pass passed".split())
+
+YOD = set("new news newest newer newly tuesday tune tunes due duty during student students tube produce produced introduce "
+          "introduced reduce reduced numerous avenue nuclear assume".split())
+
+def gb_ipa(text):
+    """British pronunciation (non-rhotic, BATH vowel, əʊ) for the Kokoro voices. Same tokens as words_to_ipa."""
+    out = []; d = cmu()
+    for tok in re.findall(r"[A-Za-z][A-Za-z'\-]*|[.,!?;:]", normalize(text)):
+        if tok in ".,!?;:": out.append((None, tok)); continue
+        ipa = []
+        for p in [p for p in tok.lower().replace("-", " ").split() if p]:
+            key = p if p in d else p.strip("'")
+            if key.endswith("'s") and key not in d and key[:-2] in d: arp = d[key[:-2]] + " Z"
+            elif key in d: arp = d[key]
+            else: raise KeyError(f"tts: no pronunciation for '{p}' (add it to tts.EXTRA or rephrase)")
+            phs = arp.split(); s = ""
+            for i, ph in enumerate(phs):
+                base, st = re.match(r"([A-Z]+)(\d?)", ph).groups(); nxt = phs[i + 1] if i + 1 < len(phs) else ""
+                nxtv = nxt[:2] in GBV
+                if base in GBV:
+                    ip = GBV[base]
+                    if base == "AH" and st == "0": ip = "ə"
+                    elif base == "ER" and st == "0": ip = "ə"
+                    elif base == "IY" and st == "0": ip = "i"
+                    elif base == "AA" and (nxt == "R" or key in BATH): ip = "ɑː"
+                    elif base == "AE" and key in BATH: ip = "ɑː"
+                    elif base == "EH" and nxt == "R" and not (i + 2 < len(phs) and phs[i + 2][:2] in GBV): ip = "ɛː"
+                    elif base in ("IH", "IY") and nxt == "R" and not (i + 2 < len(phs) and phs[i + 2][:2] in GBV): ip = "ɪə"
+                    elif base == "UH" and nxt == "R": ip = "ʊə"
+                    if p == "a" and len(phs) == 1: ip = "ɐ"
+                    if base == "UW" and key in YOD and i and phs[i - 1] in ("N", "T", "D", "S"): ip = "j" + ip
+                    s += {"1": "ˈ", "2": "ˌ"}.get(st, "") + ip
+                elif base == "R":
+                    if nxtv: s += "ɹ"                          # non-rhotic: r only before a vowel
+                else: s += GBC[base]
+            ipa.append(s)
+        out.append((tok, " ".join(ipa)))
+    return out
+
+_ks = None
+def get_kokoro():
+    global _ks
+    if _ks is None:
+        import onnxruntime as ort
+        os.makedirs(KDIR, exist_ok=True)
+        for f in ("kokoro-v1.0.int8.onnx", "voices-v1.0.bin"):
+            if not os.path.exists(os.path.join(KDIR, f)): subprocess.run(["curl", "-sL", "-m", "900", "-o", os.path.join(KDIR, f), KURL + f], check=True)
+        o = ort.SessionOptions(); o.intra_op_num_threads = os.cpu_count() or 4
+        _ks = (ort.InferenceSession(os.path.join(KDIR, "kokoro-v1.0.int8.onnx"), o, providers=["CPUExecutionProvider"]),
+               np.load(os.path.join(KDIR, "voices-v1.0.bin")))
+    return _ks
+
+def say_gb(text, voice=None, speed=None):
+    """British female voice (default bf_emma). Returns (audio float32, 24000, word_times)."""
+    sess, voices = get_kokoro(); toks = gb_ipa(text); ph = ""; spans = []
+    for k, (w, ipa) in enumerate(toks):
+        if k and w is not None: ph += " "
+        a = len(ph); ph += ipa
+        if w is not None: spans.append((w, a, len(ph)))
+    ids = [KVOCAB[c] for c in ph if c in KVOCAB][:510]
+    style = voices[voice or KVOICE][len(ids)]
+    audio = sess.run(None, {"tokens": np.array([[0] + ids + [0]], dtype=np.int64), "style": style.astype(np.float32),
+                            "speed": np.array([speed or KSPEED], dtype=np.float32)})[0].squeeze().astype(np.float32)
+    sr = 24000; env = np.abs(audio) > 0.01*np.abs(audio).max(); nz = np.nonzero(env)[0]
+    if len(nz): audio = audio[max(0, nz[0] - int(0.03*sr)): nz[-1] + int(0.1*sr)]
+    dur = len(audio)/sr; n = max(1, len(ph)); wt = [(w, dur*a/n, dur*b/n) for w, a, b in spans]
+    return audio/max(1e-6, np.abs(audio).max())*0.9, sr, wt

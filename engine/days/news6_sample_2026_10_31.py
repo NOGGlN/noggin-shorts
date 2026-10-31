@@ -8,7 +8,7 @@ ed["vo_open"] = "Here's the news you missed this week."
 ed["cats"] = ["Robots", "Records", "Space", "Sneakers"]
 VO = [
     ["Scientists in Switzerland built a robot hand that walks on its own fingers.",
-     "It learned to walk in a computer simulation. Now it can get up after a fall, and even type on a keyboard."],
+     "It learned to walk in a computer simulation, and it can even type on a keyboard."],
     ["A man strapped himself to the wing of a flying plane, to open trading cards.",
      "7 packs in one minute, 600 feet up. It's a world record."],
     ["A man carried a million-dollar lottery ticket in his wallet for two months.",
