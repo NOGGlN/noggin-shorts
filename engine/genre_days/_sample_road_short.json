@@ -1,0 +1,12 @@
+{
+ "kind": "road", "format": "short", "id": "road-sample",
+ "title": "No signs, no lights. Who goes first? 🚗 #shorts",
+ "description": "Most drivers get this wrong. Who has to wait - you or the car?\nComment your answer 👇\n\n#roadrules #driving #quiz #noggin #shorts",
+ "scenes": [
+  {"type": "crossroads_right", "place": "Crossroads in Portugal",
+   "lines": ["No signs. No lights.", "You go straight on."],
+   "question": "Who has to wait - you or the car?",
+   "answer": "you", "answer_line": "YOU wait.",
+   "why": "No signs? The car coming from your right goes first."}
+ ]
+}

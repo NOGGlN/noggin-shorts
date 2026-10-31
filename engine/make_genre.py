@@ -21,7 +21,7 @@ def norm(s): return " ".join(s.upper().split())
 if __name__ == "__main__":
     path, date = sys.argv[1], sys.argv[2]; stills = "--stills" in sys.argv
     spec = json.load(open(path)); kind, fmt = spec["kind"], spec["format"]
-    assert kind in ("wyr", "royale", "bounce") and fmt in ("video", "short")
+    assert kind in ("wyr", "royale", "bounce", "road") and fmt in ("video", "short")
     for f in ("id", "title", "description"): assert spec.get(f), f"missing {f}"
     if fmt == "short": g.set_size(1080, 1920)
     data = os.path.join(HERE, "data")
@@ -39,10 +39,17 @@ if __name__ == "__main__":
         if not stills and any(u["theme"] == spec["id"] for u in used): raise SystemExit(f"DUPLICATE battle theme: {spec['id']}")
         C = spec["contestants"]; assert 12 <= len(C) <= 24 and len({c[0] for c in C}) == len(C) and len({c[1] for c in C}) == len(C)
         for nm, e in C: assert e and len(nm) <= 14, f"name too long or emoji missing: {nm}"
+    elif kind == "road":
+        up = os.path.join(data, "used_road.json"); used = loadj(up, [])
+        keys = {norm(u["type"] + " " + u["place"] + " " + " ".join(u["lines"])) for u in used}
+        SC = spec["scenes"]; assert 1 <= len(SC) <= (1 if fmt == "short" else 10), "road: short = 1 scene, video = up to 10"
+        for q in SC:
+            assert q["answer"] in ("you", "car") and q["why"] and q["answer_line"], f"incomplete scene {q}"
+            if not stills and norm(q["type"] + " " + q["place"] + " " + " ".join(q["lines"])) in keys: raise SystemExit(f"DUPLICATE road scene: {q['lines']}")
     else:
         up = os.path.join(data, "used_bounce.json"); used = loadj(up, [])
         if not stills and any(u["id"] == spec["id"] for u in used): raise SystemExit(f"DUPLICATE bounce id: {spec['id']}")
-    mod = __import__({"wyr": "wyr", "royale": "royale", "bounce": "bounce"}[kind])
+    mod = __import__({"wyr": "wyr", "royale": "royale", "bounce": "bounce", "road": "road"}[kind])
     frame, audio, dur, still_times, info = mod.build(spec, fmt)
     if fmt == "short": assert dur < 59.5, f"short too long: {dur:.1f}s"
     out = os.path.join(HERE, "..", "videos", date); os.makedirs(out, exist_ok=True)
@@ -59,6 +66,7 @@ if __name__ == "__main__":
                     description=spec["description"], seconds=round(dur, 1), **info))
     json.dump(man, open(mp, "w"), ensure_ascii=False, indent=1)
     if kind == "wyr": used += [dict(date=date, a=q["a"], b=q["b"]) for q in spec["questions"]]
+    elif kind == "road": used += [dict(date=date, type=q["type"], place=q["place"], lines=q["lines"]) for q in spec["scenes"]]
     elif kind == "royale": used.append(dict(date=date, theme=spec["id"], winner=info.get("winner")))
     else: used.append(dict(date=date, id=spec["id"]))
     json.dump(used, open(up, "w"), ensure_ascii=False, indent=1)

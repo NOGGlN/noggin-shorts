@@ -12,6 +12,21 @@ The owner chose three formats: **Would You Rather**, **Battle Royale** and **Sat
 - YouTube only. Instagram, TikTok, the news task, the battle task and the old puzzle Shorts are paused.
 - The sections further down (old daily puzzle job, News job, Battle job) are kept for reference / if the owner turns them back on.
 
+## Reference videos from the owner
+When the owner sends a reference video or screenshot, it is INSPIRATION, not something to copy exactly: take its theme, how it talks
+(tone, script style), the kind of information it shows and its overall look, then make our own version (own scenarios, own wording,
+Noggin branding, no real people's faces, no copied text or images).
+- Lifestyle-news reel (Oct 31): "here's the news you missed" tone, calm narrator, cinematic full-screen photos, serif captions,
+  "This Week in ..." title card, category collage. -> news6.py.
+- Road-rules quiz (Oct 31): top-down illustrated junction, cars labelled "You" and "Car", dotted routes, a card with a place label,
+  2 short statement lines and a red "Who has to wait?" question, "Answer in the comments". -> genres/road.py (kind "road").
+  Use real rules only (Portugal's Codigo da Estrada by default, the owner is in Portugal); always reveal the answer with the reason.
+  Built: `make_genre.py` kind "road" (genres/road.py): scene types crossroads_right, left_turn, roundabout_enter, roundabout_2lane_exit;
+  British female voice reads the card, 4 s countdown, WAITS / GOES FIRST badges, answer + reason. Short = 1 scene (~18 s), video = up to 10.
+  Sample: `genre_days/_sample_road_short.json` -> `videos/samples/road-quiz-sample.mp4`. Not in the posting rotation yet (owner decides).
+- "Driving Test" worksheet quiz (Oct 31): paper worksheet look, numbered road-marking questions with 3 options and a small road
+  drawing each, a countdown circle, then a highlighter stroke + tick on the right answer, "Can you get 7/7?". Not built yet.
+
 ## Old daily slots (paused)
 Every day, on all three networks (YouTube @NOGGIN, Instagram @nogglndaily, TikTok @noggin.daily):
 - **1 news edition at 10:00 on all three** ("News job" at the end): YouTube = the video Short; Instagram + TikTok = the PHOTO carousel.
