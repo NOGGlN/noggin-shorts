@@ -23,6 +23,10 @@ Noggin branding, no real people's faces, no copied text or images).
   Use real rules only (Portugal's Codigo da Estrada by default, the owner is in Portugal); always reveal the answer with the reason.
   Built: `make_genre.py` kind "road" (genres/road.py): scene types crossroads_right, left_turn, roundabout_enter, roundabout_2lane_exit;
   British female voice reads the card, 4 s countdown, WAITS / GOES FIRST badges, answer + reason. Short = 1 scene (~18 s), video = up to 10.
+  Owner wants each scene to end with "Around the world": `"compare": {"same": [countries], "different": [[country, short note]]}`
+  (flags + names on a panel, read by the voice). Major countries only (Spain, France, Germany, Italy, UK, USA, Japan, Brazil, Canada,
+  Australia...), and ONLY countries whose rule you are sure of from official sources (e.g. UK Highway Code, US state DMV handbooks,
+  Japan Road Traffic Act); leave a country out rather than guess. Remember left-hand-traffic countries mirror left/right rules.
   Sample: `genre_days/_sample_road_short.json` -> `videos/samples/road-quiz-sample.mp4`. Not in the posting rotation yet (owner decides).
 - "Driving Test" worksheet quiz (Oct 31): paper worksheet look, numbered road-marking questions with 3 options and a small road
   drawing each, a countdown circle, then a highlighter stroke + tick on the right answer, "Can you get 7/7?". Not built yet.

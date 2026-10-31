@@ -206,6 +206,52 @@ def badge(txt, col):
     im = Image.new("RGBA", (w, 74), (0, 0, 0, 0)); d = ImageDraw.Draw(im)
     d.rounded_rectangle((0, 0, w - 1, 73), 37, fill=col + (255,)); d.text((w/2, 38), txt, font=f, fill=(255, 255, 255), anchor="mm"); return im
 
+
+# ------------------------------------------------------------------ "around the world" comparison
+ISO = {"Portugal": "PT", "Spain": "ES", "France": "FR", "Germany": "DE", "Italy": "IT", "UK": "GB", "USA": "US", "Japan": "JP",
+       "Australia": "AU", "Brazil": "BR", "Canada": "CA", "Netherlands": "NL", "Belgium": "BE", "Poland": "PL", "Ireland": "IE",
+       "India": "IN", "Switzerland": "CH", "Austria": "AT", "Mexico": "MX", "China": "CN", "South Korea": "KR"}
+SAY = {"UK": "the U K", "USA": "the U S A", "Netherlands": "the Netherlands"}
+def compare_vo(cmp):
+    same = [SAY.get(c, c) for c in cmp.get("same", [])]
+    out = ""
+    if same: out = "Same rule in " + (", ".join(same[:-1]) + " and " + same[-1] if len(same) > 1 else same[0]) + ". "
+    for k, (c, note) in enumerate(cmp.get("different", [])):
+        out += ("But in " if k == 0 else "In ") + SAY.get(c, c) + ", " + note[0].lower() + note[1:] + " "
+    return out.strip()
+
+def compare_panel(cmp, w):
+    """White card: 'Around the world' with flags. Same rule (green) / different (red) + a short note each."""
+    vert = w > 900; pad = 44; lab = g.font(g.XB, 40 if vert else 34); head = g.font(g.BLACK, 60 if vert else 46)
+    name = g.font(g.BLACK, 46 if vert else 36); note = g.font(g.XB, 40 if vert else 32); fs = 64 if vert else 50
+    rows = []                                                      # (kind, payload, height)
+    rows.append(("text", ("Around the world", lab, RED), 56)); rows.append(("text", ("Same rule", head, GREEN), 80))
+    same = cmp.get("same", []); per = 2
+    for k in range(0, len(same), per): rows.append(("flags", same[k:k + per], fs + 24))
+    if cmp.get("different"):
+        rows.append(("gap", None, 16)); rows.append(("text", ("Different", head, RED), 80))
+        for c, nt in cmp["different"]:
+            lines = wrap(nt, note, w - 2*pad - fs - 30)
+            rows.append(("diff", (c, lines), max(fs, 54 + 48*len(lines)) + 22))
+    ht = sum(r[2] for r in rows) + 2*pad
+    im = Image.new("RGBA", (w + 40, ht + 40), (0, 0, 0, 0)); sh = Image.new("L", im.size, 0)
+    ImageDraw.Draw(sh).rounded_rectangle((20, 26, w + 20, ht + 26), 36, fill=90); sh = sh.filter(ImageFilter.GaussianBlur(14))
+    im = Image.composite(Image.new("RGBA", im.size, (0, 0, 0, 255)), Image.new("RGBA", im.size, (0, 0, 0, 0)), sh)
+    d = ImageDraw.Draw(im); d.rounded_rectangle((20, 20, w + 20, ht + 20), 36, fill=(250, 250, 248, 245)); y = 20 + pad; x0 = 20 + pad
+    for kind, pl, hh in rows:
+        if kind == "text": d.text((x0, y), pl[0], font=pl[1], fill=pl[2])
+        elif kind == "flags":
+            x = x0
+            for c in pl:
+                im.alpha_composite(g.emoji(g.flag(ISO[c]), fs), (int(x), int(y))); d.text((x + fs + 16, y + fs/2), c, font=name, fill=INKC, anchor="lm")
+                x += (w - 2*pad)/per
+        elif kind == "diff":
+            c, lines = pl; im.alpha_composite(g.emoji(g.flag(ISO[c]), fs), (int(x0), int(y)))
+            d.text((x0 + fs + 22, y), c, font=name, fill=INKC)
+            for j, l in enumerate(lines): d.text((x0 + fs + 22, y + 54 + 48*j), l, font=note, fill=(70, 70, 76))
+        y += hh
+    return im
+
 # ------------------------------------------------------------------ build
 def build(spec, fmt):
     import tts
@@ -225,13 +271,19 @@ def build(spec, fmt):
         q = sc["place"] + ". " + " ".join(sc["lines"]) + " " + sc["question"].replace(" - ", ", ")
         a1, sr, _ = tts.say_gb(q); a2, _, _ = tts.say_gb("The answer: " + sc["answer_line"] + " " + sc["why"])
         t0 = t; tq = t0 + 0.7; tcount = tq + len(a1)/sr + 0.4; trev = tcount + 4.0; tgo = trev + 0.8
-        tend = trev + max(len(a2)/sr + 0.6, 4.6) + (1.6 if i == len(scenes) - 1 else 0.6)
+        tcmp = None; cmp = sc.get("compare")
+        if cmp:                                                   # "around the world": same rule / different rule
+            tcmp = trev + 0.15 + len(a2)/sr + 0.5
+            a3, _, _ = tts.say_gb(compare_vo(cmp)); voice.append((tcmp + 0.5, a3))
+            tend = tcmp + 0.5 + len(a3)/sr + 1.2 + (1.6 if i == len(scenes) - 1 else 0.4)
+        else:
+            tend = trev + max(len(a2)/sr + 0.6, 4.6) + (1.6 if i == len(scenes) - 1 else 0.6)
         voice += [(tq, a1), (trev + 0.15, a2)]
         first = car if sc["answer"] == "you" else you            # who goes first
         cardh = card(sc, cw, 1.0).height + cardpos[1] if vert else 0
         if Z not in sprites:
             sprites[Z] = [sp.resize((int(sp.width*Z*0.95), int(sp.height*Z*0.95)), Image.LANCZOS) for sp in (car_sprite(YOU_C, "You"), car_sprite(CAR_C, "Car"))]
-        plan.append(dict(Z=Z, cardh=cardh, sc=sc, bg=bg, you=you, car=car, ys=ys, cs=cs, first=first, t0=t0, tq=tq, tcount=tcount, trev=trev, tgo=tgo, t1=tend))
+        plan.append(dict(tcmp=tcmp, Z=Z, cardh=cardh, sc=sc, bg=bg, you=you, car=car, ys=ys, cs=cs, first=first, t0=t0, tq=tq, tcount=tcount, trev=trev, tgo=tgo, t1=tend))
         t = tend
     DUR = t
     cardbottom = {}
@@ -267,7 +319,12 @@ def build(spec, fmt):
         key = (id(p), rev, cnt)
         if key not in cards: cards[key] = card(sc, cw, rev, cnt)
         c = cards[key]; slide = g.ease((lt - 0.15)/0.45); cardbottom[id(p)] = cardpos[1] + c.height if vert else 0
-        im.alpha_composite(c, (int(cardpos[0]), int(cardpos[1] - (1 - slide)*(c.height + 140)))) if slide > 0 else None
+        if p["tcmp"] is not None and tt >= p["tcmp"]:             # question card slides away, comparison panel slides in
+            u = g.ease((tt - p["tcmp"])/0.45); slide = 1 - u
+            ck = ("cmp", id(p))
+            if ck not in cards: cards[ck] = compare_panel(sc["compare"], cw)
+            pc = cards[ck]; im.alpha_composite(pc, (int(cardpos[0]), int(cardpos[1] - (1 - u)*(pc.height + 140))))
+        if slide > 0.001: im.alpha_composite(c, (int(cardpos[0]), int(cardpos[1] - (1 - slide)*(c.height + 140))))
         if tt > DUR - 1.6:
             a = g.ease((tt - (DUR - 1.6))/0.4); im.alpha_composite(Image.new("RGBA", (W, H), (20, 20, 24, int(200*a))))
             g.paste(im, g.T("FOLLOW FOR A NEW ROAD RULE", 64 if vert else 80, g.WHITE, 8, maxw=W - 80), W/2, H/2 - 50, a)
@@ -283,6 +340,6 @@ def build(spec, fmt):
             x = np.interp(np.arange(int(len(a)/24000*g.SR))/g.SR, np.arange(len(a))/24000, a); M.add(x*2.2, t0)
         M.save(path)
     stills = []
-    for p in plan: stills += [p["t0"] + 1.2, p["tcount"] + 1.5, p["trev"] + 1.0, p["tgo"] + 1.6]
+    for p in plan: stills += [p["t0"] + 1.2, p["tcount"] + 1.5, p["trev"] + 1.0] + ([p["tcmp"] + 1.5] if p["tcmp"] else [p["tgo"] + 1.6])
     stills = stills[:9] + ([DUR - 0.6] if len(stills) < 9 else [])
     return frame, audio, DUR, stills, {"scenes": len(plan)}

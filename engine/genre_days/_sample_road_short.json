@@ -1,12 +1,43 @@
 {
- "kind": "road", "format": "short", "id": "road-sample",
+ "kind": "road",
+ "format": "short",
+ "id": "road-sample",
  "title": "No signs, no lights. Who goes first? 🚗 #shorts",
  "description": "Most drivers get this wrong. Who has to wait - you or the car?\nComment your answer 👇\n\n#roadrules #driving #quiz #noggin #shorts",
  "scenes": [
-  {"type": "crossroads_right", "place": "Crossroads in Portugal",
-   "lines": ["No signs. No lights.", "You go straight on."],
+  {
+   "type": "crossroads_right",
+   "place": "Crossroads in Portugal",
+   "lines": [
+    "No signs. No lights.",
+    "You go straight on."
+   ],
    "question": "Who has to wait - you or the car?",
-   "answer": "you", "answer_line": "YOU wait.",
-   "why": "No signs? The car coming from your right goes first."}
+   "answer": "you",
+   "answer_line": "YOU wait.",
+   "why": "No signs? The car coming from your right goes first.",
+   "compare": {
+    "same": [
+     "Spain",
+     "France",
+     "Germany",
+     "Italy"
+    ],
+    "different": [
+     [
+      "UK",
+      "No one has automatic priority. Both drivers must take care."
+     ],
+     [
+      "USA",
+      "The first car to arrive goes first. Only if you arrive together does the car on the right go."
+     ],
+     [
+      "Japan",
+      "They drive on the left, so the car from the left goes first."
+     ]
+    ]
+   }
+  }
  ]
 }
