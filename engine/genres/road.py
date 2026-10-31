@@ -8,7 +8,7 @@ spec["scenes"] = [{"type": "crossroads_right" | "roundabout_enter" | "roundabout
                    "answer_line": "YOU wait.", "why": "No signs? Traffic from your right goes first."}]
 Rules must be real (Portugal by default). The scene type decides the geometry; "answer" decides who stops and who goes first.
 """
-import math
+import math, os
 import numpy as np
 from PIL import Image, ImageDraw, ImageFilter
 import gcommon as g
@@ -18,6 +18,7 @@ GRASS, GRASS2, LANE = (150, 194, 108), (136, 182, 96), (240, 240, 236)
 YOU_C, CAR_C = (233, 86, 58), (246, 246, 244)
 RED, GREEN, INKC = (229, 80, 52), (46, 160, 90), (20, 20, 24)
 S = 2   # supersampling for the static background
+SPEED = 1.12  # owner: "talk a bit faster"
 
 # ------------------------------------------------------------------ geometry helpers
 def arc(cx, cy, r, a0, a1, n=40):
@@ -176,29 +177,52 @@ def wrap(txt, font, maxw):
         else: lines.append(cur); cur = w
     return lines + ([cur] if cur else [])
 
+LET = "ABCD"
 def card(sc, w, reveal=0.0, count=None):
-    """The question card (white, rounded). reveal 0..1 swaps the comments line for the answer."""
-    pad = 44; maxw = w - 2*pad; lab = g.font(g.XB, 40); big = g.font(g.BLACK, 76 if w > 900 else 54); small = g.font(g.XB, 46 if w > 900 else 36)
-    rows = [(l, lab, RED) for l in wrap(sc["place"], lab, maxw)]
-    for l in sc["lines"]: rows += [(x, big, INKC) for x in wrap(l, big, maxw)]
-    rows += [(x, big, RED) for x in wrap(sc["question"], big, maxw)]
-    if reveal < 0.5: tail = [(x, small, INKC) for x in wrap("Answer in the comments", small, maxw - 70)]
-    else: tail = [(x, big, GREEN) for x in wrap("Answer: " + sc["answer_line"], big, maxw)] + [(x, small, INKC) for x in wrap(sc["why"], small, maxw)]
-    rows += [("", None, None)] + tail
-    hts = [(f.getbbox("Hg")[3] + 14 if f else 18) for _, f, _ in rows]; ht = sum(hts) + 2*pad
+    """The question card: place label, statement lines, red question, then A-D options.
+    reveal: the correct option turns green with a tick, the others fade, and the reason appears."""
+    vert = w > 900; pad = 40; maxw = w - 2*pad
+    lab = g.font(g.XB, 38 if vert else 32); big = g.font(g.BLACK, 66 if vert else 48); opt = g.font(g.XB, 48 if vert else 36)
+    small = g.font(g.XB, 42 if vert else 32)
+    rows = [("t", l, lab, RED) for l in wrap(sc["place"], lab, maxw)]
+    for l in sc["lines"]: rows += [("t", x, big, INKC) for x in wrap(l, big, maxw)]
+    rows += [("t", x, big, RED) for x in wrap(sc["question"], big, maxw)]
+    rows.append(("gap", "", None, None))
+    for j, o in enumerate(sc["options"]):
+        ls = wrap(o, opt, maxw - 90)
+        for q, l in enumerate(ls): rows.append(("o", (j, q, l), opt, None))
+    if reveal >= 0.5: rows += [("gap", "", None, None)] + [("t", x, small, (60, 60, 66)) for x in wrap(sc["why"], small, maxw)]
+    else: rows += [("gap", "", None, None), ("c", "Comment A, B, C or D", small, INKC)]
+    def hh(r):
+        if r[0] == "gap": return 14
+        if r[0] == "o": return r[2].getbbox("Hg")[3] + (26 if r[1][1] == 0 else 12)
+        return r[2].getbbox("Hg")[3] + 12
+    ht = sum(hh(r) for r in rows) + 2*pad
     im = Image.new("RGBA", (w + 40, ht + 40), (0, 0, 0, 0)); sh = Image.new("L", im.size, 0)
     ImageDraw.Draw(sh).rounded_rectangle((20, 26, w + 20, ht + 26), 36, fill=90); sh = sh.filter(ImageFilter.GaussianBlur(14))
-    im.putalpha(sh); im = Image.composite(Image.new("RGBA", im.size, (0, 0, 0, 255)), Image.new("RGBA", im.size, (0, 0, 0, 0)), sh)
+    im = Image.composite(Image.new("RGBA", im.size, (0, 0, 0, 255)), Image.new("RGBA", im.size, (0, 0, 0, 0)), sh)
     d = ImageDraw.Draw(im); d.rounded_rectangle((20, 20, w + 20, ht + 20), 36, fill=(250, 250, 248, 245))
-    y = 20 + pad
-    for (txt, f, col), hh in zip(rows, hts):
-        if f: d.text((20 + pad, y), txt, font=f, fill=col)
-        y += hh
-    if reveal < 0.5:
-        e = g.emoji("👇", 56); last = tail[-1][0]; im.alpha_composite(e, (int(20 + pad + small.getlength(last) + 14), int(y - hts[-1] - 8)))
+    y = 20 + pad; x0 = 20 + pad
+    for r in rows:
+        h = hh(r)
+        if r[0] in ("t", "c"):
+            d.text((x0, y), r[1], font=r[2], fill=r[3])
+            if r[0] == "c": im.alpha_composite(g.emoji("👇", 50), (int(x0 + r[2].getlength(r[1]) + 12), int(y - 6)))
+        elif r[0] == "o":
+            j, q, l = r[1]; ok = j == sc["correct"]; fade = reveal >= 0.5 and not ok
+            col = (175, 175, 180) if fade else (GREEN if reveal >= 0.5 and ok else INKC)
+            if q == 0:
+                if reveal >= 0.5 and ok:
+                    d.rounded_rectangle((x0 - 14, y - 10, w + 20 - pad + 14, y + r[2].getbbox("Hg")[3] + 12), 18, fill=(222, 244, 228))
+                rr = 30; bx, by = x0 + rr, y + r[2].getbbox("Hg")[3]/2 + 2
+                d.ellipse((bx - rr, by - rr, bx + rr, by + rr), fill=(GREEN if reveal >= 0.5 and ok else ((205, 205, 210) if fade else RED)))
+                if reveal >= 0.5 and ok: d.line([(bx - 13, by + 1), (bx - 3, by + 11), (bx + 14, by - 10)], fill=(255, 255, 255), width=7, joint="curve")
+                else: d.text((bx, by), LET[j], font=g.font(g.BLACK, 34 if vert else 28), fill=(255, 255, 255), anchor="mm")
+            d.text((x0 + 80, y), l, font=r[2], fill=col)
+        y += h
     if count is not None and reveal < 0.5:                       # countdown badge in the card's corner
-        cxr, cyr, r = w + 20 - 70, 20 + 70, 46
-        d.ellipse((cxr - r, cyr - r, cxr + r, cyr + r), fill=RED); d.text((cxr, cyr), str(count), font=g.font(g.BLACK, 56), fill=(255, 255, 255), anchor="mm")
+        cxr, cyr, r = w + 20 - 66, 20 + 66, 44
+        d.ellipse((cxr - r, cyr - r, cxr + r, cyr + r), fill=RED); d.text((cxr, cyr), str(count), font=g.font(g.BLACK, 54), fill=(255, 255, 255), anchor="mm")
     return im
 
 def badge(txt, col):
@@ -252,74 +276,126 @@ def compare_panel(cmp, w):
         y += hh
     return im
 
+
+# ------------------------------------------------------------------ actors (2-3 vehicles) and signs
+LABELS = {"you": "You", "car": "Car", "car2": "Car 2", "amb": "Ambulance"}
+def scene_actors(kind, cx, cy, W, H):
+    """-> (draw_fn, {name: (path, stop_s)}). Names: you, car, car2, amb."""
+    base = {"crossroads_three": "crossroads_right", "crossroads_giveway": "crossroads_right",
+            "crossroads_stop_right": "crossroads_right", "ambulance_left": "crossroads_right"}.get(kind, kind)
+    draw0, you, car, ys, cs = scene_geometry(base, cx, cy, W, H)
+    hl, ln, far = 190, 95, max(W, H) + 400
+    left = Path([(cx - far, cy + ln), (cx + far, cy + ln)]); lstop = left.s_of(cx - hl - 60, cy + ln)   # from your left, eastbound
+    actors, signs = {"you": (you, ys), "car": (car, cs)}, []
+    if kind == "crossroads_three": actors["car2"] = (left, lstop)
+    elif kind == "ambulance_left": actors = {"you": (you, ys), "amb": (left, lstop)}
+    elif kind == "crossroads_giveway": actors = {"you": (you, ys), "car": (left, lstop)}; signs.append(("giveway", cx + hl + 75, cy + hl + 95))
+    elif kind == "crossroads_stop_right": signs.append(("stop", cx + hl + 95, cy - hl - 75))
+    def draw(d, k):
+        draw0(d, k)
+        for sg in signs: road_sign(d, *sg, k)
+    return draw, actors
+
+def road_sign(d, kind, x, y, k):
+    d.ellipse(((x - 9)*k, (y + 46)*k, (x + 9)*k, (y + 58)*k), fill=(150, 145, 135))               # pole foot / shadow
+    d.line((x*k, (y + 10)*k, x*k, (y + 52)*k), fill=(90, 90, 96), width=int(8*k))
+    if kind == "giveway":
+        r = 58; pts = [(x - r, y - r*0.6), (x + r, y - r*0.6), (x, y + r*0.95)]
+        d.polygon([(a*k, b*k) for a, b in pts], fill=(214, 40, 40))
+        r2 = 34; pts2 = [(x - r2, y - r2*0.55 + 4), (x + r2, y - r2*0.55 + 4), (x, y + r2*0.95 + 2)]
+        d.polygon([(a*k, b*k) for a, b in pts2], fill=(255, 255, 255))
+    else:
+        r = 54; pts = [(x + r*math.cos(math.radians(22.5 + 45*j)), y + r*math.sin(math.radians(22.5 + 45*j))) for j in range(8)]
+        d.polygon([(a*k, b*k) for a, b in pts], fill=(255, 255, 255))
+        pts = [(x + (r - 6)*math.cos(math.radians(22.5 + 45*j)), y + (r - 6)*math.sin(math.radians(22.5 + 45*j))) for j in range(8)]
+        d.polygon([(a*k, b*k) for a, b in pts], fill=(204, 30, 36))
+        d.text((x*k, y*k), "STOP", font=g.font(g.BLACK, int(30*k)), fill=(255, 255, 255), anchor="mm")
+
+def amb_sprite():
+    base = car_sprite((248, 248, 246), "amb").copy(); d = ImageDraw.Draw(base); w, h = base.size
+    for yy in (0.36, 0.62): d.rectangle((24, int(h*yy), w - 44, int(h*yy) + 14), fill=(214, 40, 40))
+    d.rounded_rectangle((w*0.28, h*0.30, w*0.62, h*0.36), 6, fill=(60, 110, 230))                    # light bar
+    return base
+
 # ------------------------------------------------------------------ build
 def build(spec, fmt):
     import tts
     W, H = g.W, g.H; vert = fmt == "short"; scenes = spec["scenes"]
     if vert: scenes = scenes[:1]
-    cw = W - 60 if vert else 820; cardpos = (30 - 20, 110 - 20) if vert else (40 - 20, 60 - 20)
+    cw = W - 60 if vert else 820; cardpos = (30 - 20, 100 - 20) if vert else (40 - 20, 40 - 20)
     plan, t = [], 0.0; voice = []; sprites = {}
     for i, sc in enumerate(scenes):
         rb = sc["type"].startswith("roundabout")                     # world units are zoomed by Z on screen
-        Z = (1.0 if vert else 0.8) if rb else (1.45 if vert else 1.2); WW, HW = W/Z, H/Z
-        cx, cy = (WW/2, HW*(0.64 if rb else 0.66)) if vert else (WW*0.71, HW/2)
-        draw, you, car, ys, cs = scene_geometry(sc["type"], cx, cy, WW, HW)
+        Z = (1.0 if vert else 0.8) if rb else (1.3 if vert else 1.15); WW, HW = W/Z, H/Z
+        cx, cy = (WW/2, HW*(0.66 if rb else 0.70)) if vert else (WW*0.71, HW/2)
+        draw, actors = scene_actors(sc["type"], cx, cy, WW, HW)
+        order = sc.get("order") or (["car", "you"] if sc.get("answer") == "you" else ["you", "car"])
         bg = Image.new("RGB", (W*S, H*S), PAVE); d = ImageDraw.Draw(bg); k = S*Z
         for x in np.arange(0, WW, 96): d.line((x*k, 0, x*k, H*S), fill=TILE, width=2*S)
         for y in np.arange(0, HW, 96): d.line((0, y*k, W*S, y*k), fill=TILE, width=2*S)
         draw(d, k); bg = bg.resize((W, H), Image.LANCZOS).convert("RGBA")
-        q = sc["place"] + ". " + " ".join(sc["lines"]) + " " + sc["question"].replace(" - ", ", ")
-        a1, sr, _ = tts.say_gb(q); a2, _, _ = tts.say_gb("The answer: " + sc["answer_line"] + " " + sc["why"])
-        t0 = t; tq = t0 + 0.7; tcount = tq + len(a1)/sr + 0.4; trev = tcount + 4.0; tgo = trev + 0.8
+        opts = " ".join(f"{LET[j]}: {o.rstrip('.')}." for j, o in enumerate(sc["options"]))
+        q = sc["place"] + ". " + " ".join(sc["lines"]) + " " + sc["question"].replace(" - ", ", ") + " " + opts
+        a1, sr, _ = tts.say_gb(q, speed=SPEED)
+        a2, _, _ = tts.say_gb(f"The answer is {LET[sc['correct']]}. " + sc["why"], speed=SPEED)
+        t0 = t; tq = t0 + 0.6; tcount = tq + len(a1)/sr + 0.3; trev = tcount + 5.0; tgo = trev + 1.6
         tcmp = None; cmp = sc.get("compare")
-        if cmp:                                                   # "around the world": same rule / different rule
-            tcmp = trev + 0.15 + len(a2)/sr + 0.5
-            a3, _, _ = tts.say_gb(compare_vo(cmp)); voice.append((tcmp + 0.5, a3))
-            tend = tcmp + 0.5 + len(a3)/sr + 1.2 + (1.6 if i == len(scenes) - 1 else 0.4)
+        tgone = tgo + 1.9*len(order) + 1.2
+        if cmp:
+            tcmp = max(trev + 0.15 + len(a2)/sr + 0.5, tgone - 1.0)
+            a3, _, _ = tts.say_gb(compare_vo(cmp), speed=SPEED); voice.append((tcmp + 0.5, a3))
+            tend = tcmp + 0.5 + len(a3)/sr + 1.0 + (1.6 if i == len(scenes) - 1 else 0.4)
         else:
-            tend = trev + max(len(a2)/sr + 0.6, 4.6) + (1.6 if i == len(scenes) - 1 else 0.6)
+            tend = max(trev + len(a2)/sr + 0.6, tgone) + (1.6 if i == len(scenes) - 1 else 0.6)
         voice += [(tq, a1), (trev + 0.15, a2)]
-        first = car if sc["answer"] == "you" else you            # who goes first
         cardh = card(sc, cw, 1.0).height + cardpos[1] if vert else 0
         if Z not in sprites:
-            sprites[Z] = [sp.resize((int(sp.width*Z*0.95), int(sp.height*Z*0.95)), Image.LANCZOS) for sp in (car_sprite(YOU_C, "You"), car_sprite(CAR_C, "Car"))]
-        plan.append(dict(tcmp=tcmp, Z=Z, cardh=cardh, sc=sc, bg=bg, you=you, car=car, ys=ys, cs=cs, first=first, t0=t0, tq=tq, tcount=tcount, trev=trev, tgo=tgo, t1=tend))
+            sprites[Z] = {n: sp.resize((int(sp.width*Z*0.95), int(sp.height*Z*0.95)), Image.LANCZOS)
+                          for n, sp in (("you", car_sprite(YOU_C, "You")), ("car", car_sprite(CAR_C, "Car")),
+                                        ("car2", car_sprite((70, 120, 210), "Car 2")), ("amb", amb_sprite()))}
+        plan.append(dict(tcmp=tcmp, Z=Z, cardh=cardh, sc=sc, bg=bg, actors=actors, order=order, t0=t0, tq=tq, tcount=tcount,
+                         trev=trev, tgo=tgo, t1=tend))
         t = tend
-    DUR = t
-    cardbottom = {}
-    cards = {}
+    DUR = t; cards = {}
+    ORD = ["1ST", "2ND", "3RD"]; OCOL = [GREEN, (230, 150, 30), RED]
     def frame(tt):
         p = next((p for p in plan if tt < p["t1"]), plan[-1]); lt = tt - p["t0"]; sc = p["sc"]
-        im = p["bg"].copy(); Z = p["Z"]; spr_you, spr_car = sprites[Z]
+        im = p["bg"].copy(); Z = p["Z"]; spr = sprites[Z]
         def at(path, s_):
             x, y, a = path.at(s_); return x*Z, y*Z, a
-        def pos(path, stop, is_first):
-            arrive = min(1, (tt - p["t0"])/max(0.1, p["tq"] + 2.6 - p["t0"]))
-            s = stop*(1 - (1 - arrive)**2.2)                                  # drive in and slow to the stop point
+        def pos(name, path, stop):
+            arrive = min(1, (tt - p["t0"])/max(0.1, p["tq"] + 2.4 - p["t0"]))
+            s = stop*(1 - (1 - arrive)**2.2)
             if tt > p["tgo"]:
-                go = tt - p["tgo"] - (0 if is_first else 1.5)
-                if go > 0: s = stop + (260*go + 120*go*go)/Z
+                go = tt - p["tgo"] - 1.9*p["order"].index(name)
+                if go > 0: s = stop + (260*go + 140*go*go)/Z
             return s
-
-        sy, sc_ = pos(p["you"], p["ys"], p["first"] is p["you"]), pos(p["car"], p["cs"], p["first"] is p["car"])
+        S_ = {n: pos(n, pa, st) for n, (pa, st) in p["actors"].items()}
         da = g.ease((lt - 0.8)/0.6)*(1 - g.ease((tt - p["tgo"])/0.5))
         if da > 0.01:
-            dotted(im, p["you"], sy, min(p["you"].L, sy + 700), YOU_C, da, Z); dotted(im, p["car"], sc_, min(p["car"].L, sc_ + 700), CAR_C, da, Z)
-        for path, s, spr, lab, dk in ((p["you"], sy, spr_you, "You", False), (p["car"], sc_, spr_car, "Car", True)):
-            if s < path.L - 5: x, y, ang = at(path, s); place_car(im, spr, x, y, ang, lab, dk, Z)
-        if p["trev"] <= tt < p["tgo"] + 1.4:                                 # WAIT / GO badges
-            k = g.back((tt - p["trev"])/0.3)
-            for path, s, who in ((p["you"], sy, "you"), (p["car"], sc_, "car")):
-                x, y, _ = at(path, s); waits = who == sc["answer"]; off = 135*Z/1.9 + 60
+            for n, (pa, st) in p["actors"].items():
+                dotted(im, pa, S_[n], min(pa.L, S_[n] + 700), YOU_C if n == "you" else (70, 120, 210) if n == "car2" else CAR_C, da, Z)
+        for n, (pa, st) in p["actors"].items():
+            s_ = S_[n]
+            if s_ < pa.L - 5:
+                x, y, ang = at(pa, s_); place_car(im, spr[n], x, y, ang, sc.get("labels", {}).get(n, LABELS[n]), n in ("car", "amb"), Z)
+                if n == "amb" and int(tt*6) % 2 == 0:                           # flashing blue lights
+                    ImageDraw.Draw(im).ellipse((x - 26*Z, y - 26*Z, x + 26*Z, y + 26*Z), outline=(60, 120, 255, 230), width=int(6*Z))
+        if p["trev"] <= tt < p["tgo"] + 1.9*len(p["order"]) + 0.6:            # 1ST / 2ND / 3RD badges
+            kk = g.back((tt - p["trev"])/0.3)
+            for n, (pa, st) in p["actors"].items():
+                if n not in p["order"]: continue
+                j = p["order"].index(n); x, y, _ = at(pa, S_[n]); off = 120*Z/1.3 + 50
                 by = y - off if (y - off) > p["cardh"] + 40 else y + off
-                bdg = badge("WAITS" if waits else "GOES FIRST", RED if waits else GREEN)
-                g.paste(im, bdg, min(max(x, bdg.width/2 + 20), W - bdg.width/2 - 20), by, k)
+                bdg = badge(ORD[j] if len(p["order"]) > 2 or j else "GOES 1ST", OCOL[j] if j < 3 else RED)
+                if len(p["order"]) == 2 and j == 1: bdg = badge("WAITS", RED)
+                g.paste(im, bdg, min(max(x, bdg.width/2 + 20), W - bdg.width/2 - 20), by, kk)
         rev = 1.0 if tt >= p["trev"] else 0.0
-        cnt = None if not (p["tcount"] <= tt < p["trev"]) else 4 - int(tt - p["tcount"])
+        cnt = None if not (p["tcount"] <= tt < p["trev"]) else 5 - int(tt - p["tcount"])
         key = (id(p), rev, cnt)
         if key not in cards: cards[key] = card(sc, cw, rev, cnt)
-        c = cards[key]; slide = g.ease((lt - 0.15)/0.45); cardbottom[id(p)] = cardpos[1] + c.height if vert else 0
-        if p["tcmp"] is not None and tt >= p["tcmp"]:             # question card slides away, comparison panel slides in
+        c = cards[key]; slide = g.ease((lt - 0.15)/0.45)
+        if p["tcmp"] is not None and tt >= p["tcmp"]:
             u = g.ease((tt - p["tcmp"])/0.45); slide = 1 - u
             ck = ("cmp", id(p))
             if ck not in cards: cards[ck] = compare_panel(sc["compare"], cw)
@@ -334,12 +410,15 @@ def build(spec, fmt):
         M = g.Mix(DUR, bed=0.05)
         for p in plan:
             M.add(M.whoosh(0.5), p["t0"] + 0.15, 0.5)
-            for k in range(4): M.add(M.tick(1500 if k < 3 else 1900), p["tcount"] + k, 0.8)
+            for k in range(5): M.add(M.tick(1500 if k < 4 else 1900), p["tcount"] + k, 0.8)
             M.add(M.ding(1318.5), p["trev"], 0.8)
-        for t0, a in voice:                                                   # voice at 24 kHz -> 44.1 kHz
+            if any(n == "amb" for n in p["actors"]):                          # soft two-tone siren
+                y = np.arange(int(3.0*g.SR))/g.SR; f = np.where((y*2.5) % 1 < 0.5, 880, 660)
+                M.add(0.06*np.sin(2*np.pi*np.cumsum(f)/g.SR)*np.minimum(1, y/0.5), p["t0"] + 0.2)
+        for t0, a in voice:
             x = np.interp(np.arange(int(len(a)/24000*g.SR))/g.SR, np.arange(len(a))/24000, a); M.add(x*2.2, t0)
         M.save(path)
     stills = []
-    for p in plan: stills += [p["t0"] + 1.2, p["tcount"] + 1.5, p["trev"] + 1.0] + ([p["tcmp"] + 1.5] if p["tcmp"] else [p["tgo"] + 1.6])
-    stills = stills[:9] + ([DUR - 0.6] if len(stills) < 9 else [])
+    for p in plan: stills += [p["t0"] + 1.2, p["tcount"] + 1.5, p["trev"] + 1.0, p["tgo"] + 1.8] + ([p["tcmp"] + 1.5] if p["tcmp"] else [])
+    stills = stills[:9]
     return frame, audio, DUR, stills, {"scenes": len(plan)}

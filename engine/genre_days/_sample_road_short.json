@@ -2,20 +2,34 @@
  "kind": "road",
  "format": "short",
  "id": "road-sample",
- "title": "No signs, no lights. Who goes first? 🚗 #shorts",
- "description": "Most drivers get this wrong. Who has to wait - you or the car?\nComment your answer 👇\n\n#roadrules #driving #quiz #noggin #shorts",
+ "title": "3 cars, no signs. Who goes first? 🚗 #shorts",
+ "description": "Three cars reach a crossroads at the same time. Who goes first?\nComment A, B, C or D 👇\n\n#roadrules #driving #drivingtest #quiz #noggin #shorts",
  "scenes": [
   {
-   "type": "crossroads_right",
+   "type": "crossroads_three",
    "place": "Crossroads in Portugal",
    "lines": [
     "No signs. No lights.",
-    "You go straight on."
+    "3 cars arrive at once."
    ],
-   "question": "Who has to wait - you or the car?",
-   "answer": "you",
-   "answer_line": "YOU wait.",
-   "why": "No signs? The car coming from your right goes first.",
+   "question": "Who goes first?",
+   "labels": {
+    "car": "Car A",
+    "car2": "Car B"
+   },
+   "options": [
+    "You",
+    "Car A, on your right",
+    "Car B, on your left",
+    "Whoever is fastest"
+   ],
+   "correct": 1,
+   "order": [
+    "car",
+    "you",
+    "car2"
+   ],
+   "why": "Everyone gives way to the right. Car A has nobody on its right, so it goes first. Then you, then Car B.",
    "compare": {
     "same": [
      "Spain",
@@ -26,15 +40,15 @@
     "different": [
      [
       "UK",
-      "No one has automatic priority. Both drivers must take care."
+      "No one has automatic priority. Drivers must sort it out carefully."
      ],
      [
       "USA",
-      "The first car to arrive goes first. Only if you arrive together does the car on the right go."
+      "The first car to arrive goes first. If you all arrive together, give way to the right."
      ],
      [
       "Japan",
-      "They drive on the left, so the car from the left goes first."
+      "They drive on the left, so you give way to the car on your left."
      ]
     ]
    }

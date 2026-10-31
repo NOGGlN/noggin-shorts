@@ -44,7 +44,7 @@ if __name__ == "__main__":
         keys = {norm(u["type"] + " " + u["place"] + " " + " ".join(u["lines"])) for u in used}
         SC = spec["scenes"]; assert 1 <= len(SC) <= (1 if fmt == "short" else 10), "road: short = 1 scene, video = up to 10"
         for q in SC:
-            assert q["answer"] in ("you", "car") and q["why"] and q["answer_line"], f"incomplete scene {q}"
+            assert 3 <= len(q["options"]) <= 4 and 0 <= q["correct"] < len(q["options"]) and q["why"] and q.get("order"), f"incomplete scene {q}"
             if not stills and norm(q["type"] + " " + q["place"] + " " + " ".join(q["lines"])) in keys: raise SystemExit(f"DUPLICATE road scene: {q['lines']}")
     else:
         up = os.path.join(data, "used_bounce.json"); used = loadj(up, [])

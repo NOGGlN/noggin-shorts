@@ -21,8 +21,12 @@ Noggin branding, no real people's faces, no copied text or images).
 - Road-rules quiz (Oct 31): top-down illustrated junction, cars labelled "You" and "Car", dotted routes, a card with a place label,
   2 short statement lines and a red "Who has to wait?" question, "Answer in the comments". -> genres/road.py (kind "road").
   Use real rules only (Portugal's Codigo da Estrada by default, the owner is in Portugal); always reveal the answer with the reason.
-  Built: `make_genre.py` kind "road" (genres/road.py): scene types crossroads_right, left_turn, roundabout_enter, roundabout_2lane_exit;
-  British female voice reads the card, 4 s countdown, WAITS / GOES FIRST badges, answer + reason. Short = 1 scene (~18 s), video = up to 10.
+  Built: `make_genre.py` kind "road" (genres/road.py). Scene types: crossroads_right, crossroads_three (3 cars), crossroads_giveway
+  (give-way sign, car from the left), crossroads_stop_right (STOP sign for the car on your right), ambulance_left (siren),
+  left_turn, roundabout_enter, roundabout_2lane_exit. Owner wants HARDER questions with 3-4 OPTIONS: each scene has
+  "options" (3-4, A-D), "correct" (index), "order" (actor names in the order they go, e.g. ["car","you","car2"]), optional "labels"
+  ({"car": "Car A", "car2": "Car B"}), "why". Voice (bf_emma) reads card + options a bit FASTER (road.SPEED 1.12), 5 s countdown,
+  1ST/2ND/3RD badges, cars leave in order, then the "Around the world" panel. Short = 1 scene (~40 s), video = up to 10.
   Owner wants each scene to end with "Around the world": `"compare": {"same": [countries], "different": [[country, short note]]}`
   (flags + names on a panel, read by the voice). Major countries only (Spain, France, Germany, Italy, UK, USA, Japan, Brazil, Canada,
   Australia...), and ONLY countries whose rule you are sure of from official sources (e.g. UK Highway Code, US state DMV handbooks,
