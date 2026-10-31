@@ -66,6 +66,13 @@ Re-check them about once a month with getBestTimeToPostByNetwork and tell the ow
 
 
 ## News job (real stories only) - run by the "Noggin daily news" scheduled task
+**New look (31 Oct 2026, owner's request, not posting yet):** `engine/news6.py` = cinematic "news you missed" Short like the owner's
+reference reel: full-screen real photos (slow push/pan, warm film grade, grain), big centred serif captions synced to an offline
+AI voiceover (`engine/tts.py`, Piper LibriTTS voice, CC BY 4.0, speaker 49; model auto-downloads to engine/assets/voice/, not in git),
+"This Week in / The Noggin Times" title card, italic category collage. No person on camera. Sample: `days/news6_sample_2026_10_31.py`
+-> `videos/samples/news6-cinematic-sample.mp4`. Add `vo` lines to items/briefs (see news6.py docstring); must stay under 59 s.
+Photos for this look must be big: request `iiurlwidth=2560` from Commons. The news task stays paused until the owner says otherwise.
+
 Format: **"The Noggin Times"** - a retro newspaper look made for Gen Z's analog/print revival trend: paper texture and grain,
 Fraktur masthead, Times-style headlines, typewriter labels, halftone black-and-white photos with tape corners, red "EXTRA!" stamp
 on the cover, page-turn transitions, "Letters to the Editor" ending. Engine: `engine/carousel.py` makes the slides
