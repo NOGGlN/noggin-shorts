@@ -294,6 +294,13 @@ def scene_actors(kind, cx, cy, W, H):
     def draw(d, k):
         draw0(d, k)
         for sg in signs: road_sign(d, *sg, k)
+        if kind == "crossroads_stop_right":                                   # stop line + STOP painted in the car's lane
+            d.rectangle(((cx + hl + 12)*k, (cy - hl + 6)*k, (cx + hl + 26)*k, (cy - 8)*k), fill=LANE)
+            d.text(((cx + hl + 110)*k, (cy - ln)*k), "STOP", font=g.font(g.BLACK, int(46*k)), fill=LANE, anchor="mm")
+        if kind == "crossroads_giveway":                                      # give-way teeth across your lane
+            for j in range(5):
+                x0 = cx + 14 + j*35; y0 = cy + hl + 18
+                d.polygon([(x0*k, y0*k), ((x0 + 26)*k, y0*k), ((x0 + 13)*k, (y0 + 30)*k)], fill=LANE)
     return draw, actors
 
 def road_sign(d, kind, x, y, k):
@@ -326,7 +333,7 @@ def build(spec, fmt):
     plan, t = [], 0.0; voice = []; sprites = {}
     for i, sc in enumerate(scenes):
         rb = sc["type"].startswith("roundabout")                     # world units are zoomed by Z on screen
-        Z = (1.0 if vert else 0.8) if rb else (1.3 if vert else 1.15); WW, HW = W/Z, H/Z
+        Z = (1.0 if vert else 0.62) if rb else (1.3 if vert else 0.85); WW, HW = W/Z, H/Z
         cx, cy = (WW/2, HW*(0.66 if rb else 0.70)) if vert else (WW*0.71, HW/2)
         draw, actors = scene_actors(sc["type"], cx, cy, WW, HW)
         order = sc.get("order") or (["car", "you"] if sc.get("answer") == "you" else ["you", "car"])

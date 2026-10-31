@@ -223,7 +223,7 @@ def render(ed, out, stills=False):
     marks = [(s["t0"] + s["t1"])/2 for s in shots]
     sheet = Image.new("RGB", (270*6, 480*math.ceil(len(marks)/6)))
     for i, tm in enumerate(marks): sheet.paste(frame(tm).resize((270, 480)), ((i % 6)*270, (i//6)*480))
-    sp = out.replace(".mp4", "_check.jpg"); sheet.save(sp, quality=85)
+    sp = "/tmp/news6_check_" + os.path.basename(os.path.dirname(os.path.abspath(out))) + ".jpg"; sheet.save(sp, quality=85)
     print("shots", len(shots), "duration", round(dur, 1), "check", sp)
     if stills: return dur
     # ---- audio
