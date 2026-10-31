@@ -7,7 +7,8 @@ Videos are published to the NOGGIN YouTube channel through Metricool (brand id `
 The owner is on Metricool's free plan: at most **20 published posts per calendar month** (every network post counts; failed posts don't).
 The owner chose three formats: **Would You Rather**, **Battle Royale** and **Satisfying Bounce** ("YouTube formats job" below).
 - Post days at **16:00 Lisbon**: **Monday + Friday = YouTube Short** (vertical), **Wednesday + Saturday = regular YouTube video** (16:9).
-  About 17 posts a month; never more than 20 (count before scheduling).
+  About 17 posts a month. Hard cap: **18 a month** (2 below Metricool's 20, so the limit is never hit and posting never stops). Count before scheduling.
+- Nothing is posted before 1 Nov 2026 (October's limit is used up).
 - YouTube only. Instagram, TikTok, the news task, the battle task and the old puzzle Shorts are paused.
 - The sections further down (old daily puzzle job, News job, Battle job) are kept for reference / if the owner turns them back on.
 
@@ -190,7 +191,7 @@ No background music (owner's rule): only the synthesized sound effects the engin
 1. **Slot + budget:** Metricool `getScheduledPosts` (brand 7672444, Europe/Lisbon; ranges of max 3 days, big results -> Python).
    Ignore draft=true and ERROR posts. Next slot = earliest Monday/Wednesday/Friday/Saturday from tomorrow with no non-draft YouTube post at 16:00.
    If that day is more than 3 days away: stop ("nothing"). Count non-draft, non-ERROR posts already in that calendar month (all networks);
-   if count + 1 > 20: stop ("monthly limit reached"). Mon/Fri -> `short`, Wed/Sat -> `video`.
+   if count + 1 > 18: stop ("monthly limit reached"; 18 is the owner's cap, 2 below Metricool's 20). Mon/Fri -> `short`, Wed/Sat -> `video`.
 2. **Pick the kind:** read the last 2 entries across `videos/*/genre_manifest.json` (by date); use a kind (wyr / royale / bounce) that is NOT one
    of those two, so the three rotate. If YouTube analytics (getAnalyticsDataByMetrics YTVV17 + YTVV06) clearly show one kind getting far more
    views, it may appear more often, but never twice in a row.
