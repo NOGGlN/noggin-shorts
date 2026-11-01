@@ -1,0 +1,18 @@
+{
+ "kind": "royale",
+ "format": "video",
+ "id": "sports-24",
+ "title": "24 sports enter. Only 1 survives 🏆",
+ "description": "24 sports bounce inside one spinning ring. Slip through the gap and you're OUT. Last sport inside wins.\nPick your winner before it starts. Comment your pick 👇\n\n#battleroyale #sports #satisfying #noggin",
+ "headline": ["24 SPORTS. 1 RING.", "ONLY 1 SURVIVES"],
+ "label": "SPORTS BATTLE",
+ "pick_line": "PICK YOUR SPORT NOW",
+ "contestants": [
+  ["SOCCER", "⚽"], ["BASKETBALL", "🏀"], ["AM. FOOTBALL", "🏈"], ["BASEBALL", "⚾"],
+  ["SOFTBALL", "🥎"], ["TENNIS", "🎾"], ["VOLLEYBALL", "🏐"], ["RUGBY", "🏉"],
+  ["FRISBEE", "🥏"], ["POOL", "🎱"], ["PING PONG", "🏓"], ["BADMINTON", "🏸"],
+  ["ICE HOCKEY", "🏒"], ["FIELD HOCKEY", "🏑"], ["LACROSSE", "🥍"], ["CRICKET", "🏏"],
+  ["GOLF", "⛳"], ["SLEDDING", "🛷"], ["FISHING", "🎣"], ["SKATEBOARD", "🛹"],
+  ["SKIING", "🎿"], ["BOWLING", "🎳"], ["CURLING", "🥌"], ["SCUBA", "🤿"]
+ ]
+}
