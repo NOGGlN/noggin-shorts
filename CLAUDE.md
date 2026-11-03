@@ -8,9 +8,12 @@ The owner is on Metricool's free plan: at most **20 published posts per calendar
 Owner's cap: **18 a month** (2 below 20, so the limit is never hit and posting never stops). Count before scheduling.
 All posts at **16:00 Lisbon**, YouTube only:
 - **Monday = Cinematic news Short** ("News job", weekly, `news6.py`, British female voice). Needs the owner's computer for photos.
-- **Friday = YouTube Short**, **Wednesday + Saturday = regular YouTube video (16:9)**, made by the "YouTube formats job", rotating
+- **Wednesday + Friday = YouTube Short**, made by the "YouTube formats job", rotating
   4 kinds: **Would You Rather (wyr)**, **Battle Royale (royale)**, **Satisfying Bounce (bounce)**, **Road Rules quiz (road)**.
-- About 17 posts a month (4-5 news + 12-13 formats). Nothing is posted before 1 Nov 2026.
+- **Saturday = long video** (made by the long video task), 4 a month.
+- **OWNER'S RULE: anything under 4 minutes is ALWAYS a vertical 1080x1920 Short, uploaded with youtubeData.type "short". Never upload a
+  short clip as a regular video. A regular video (type "video") must be a real long video of at least 4 minutes.**
+- About 14 posts a month (10 Shorts + 4 long videos). Nothing is posted before 1 Nov 2026.
 - Instagram, TikTok, the old daily puzzle Shorts, the daily battle task and the OLD retro-newspaper news look are stopped.
   (The old puzzle and battle sections below are kept for reference only.)
 
@@ -157,14 +160,14 @@ Engine: `engine/battle.py` (physics + drawing + calm sound), `engine/make_battle
 
 ## YouTube formats job - run by the "Noggin YouTube uploads" scheduled task
 Engine: `engine/make_genre.py` + `engine/genres/` (`wyr.py`, `royale.py`, `bounce.py`, `road.py`, shared `gcommon.py`). Each spec is a JSON file in
-`engine/genre_days/YYYY_MM_DD_<kind>.json`. Two formats: `"format": "video"` = 1920x1080 regular video, `"format": "short"` = 1080x1920 Short (<60 s).
+`engine/genre_days/YYYY_MM_DD_<kind>.json`. This job only makes Shorts: always `"format": "short"` = 1080x1920 (<60 s). `"format": "video"` (1920x1080) stays in the engine for reference only; never publish a video under 4 minutes with it.
 No background music (owner's rule): only the synthesized sound effects the engine makes.
 
 1. **Slot + budget:** Metricool `getScheduledPosts` (brand 7672444, Europe/Lisbon; ranges of max 3 days, big results -> Python).
-   Ignore draft=true and ERROR posts. Next slot = earliest Wednesday/Friday/Saturday from tomorrow with no non-draft YouTube post at 16:00
+   Ignore draft=true and ERROR posts. Next slot = earliest Wednesday/Friday from tomorrow with no non-draft YouTube post at 16:00
    (Mondays belong to the weekly news).
    If that day is more than 3 days away: stop ("nothing"). Count non-draft, non-ERROR posts already in that calendar month (all networks);
-   if count + 1 > 18: stop ("monthly limit reached"; 18 is the owner's cap, 2 below Metricool's 20). Fri -> `short`, Wed/Sat -> `video`.
+   if count + 1 > 18: stop ("monthly limit reached"; 18 is the owner's cap, 2 below Metricool's 20). Always `short`. Saturdays belong to the long video task.
 2. **Pick the kind:** read the last 3 entries across `videos/*/genre_manifest.json` (by date); use a kind (wyr / royale / bounce / road) that is
    NOT one of those three, so the four rotate. If YouTube analytics (getAnalyticsDataByMetrics YTVV17 + YTVV06) clearly show one kind getting far more
    views, it may appear more often, but never twice in a row.

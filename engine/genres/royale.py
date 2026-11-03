@@ -102,14 +102,14 @@ def build(spec, fmt):
             g.paste(im, g.T(label, 64, g.YEL, 8, maxw=W - 80), W/2, 110)
             last = [st - OUT[i] for i in range(N) if 0 < OUT[i] <= st]; pop = 1 + 0.25*max(0, 1 - (min(last) if last else 9)/0.25)
             g.paste(im, g.T(f"ALIVE {n_alive}", 72, g.WHITE, 9), W/2, 200, pop)
-            cols = 3; rows_ = math.ceil(N/cols); rh = min(64, 560/rows_); fs = int(min(36, rh*0.6)); cw = (W - 80)/cols
+            cols = 3; rows_ = math.ceil(N/cols); rh = min(64, 560/rows_); fs = int(min(30, rh*0.6)); cw = (W - 80)/cols
             d.rounded_rectangle((30, 1340, W - 30, 1340 + rows_*rh + 30), 24, fill=(10, 8, 24, 210))
             for k, (nm, e) in enumerate(C):
                 cx_ = 40 + (k % cols)*cw; y = 1370 + (k//cols)*rh; o = is_out(k)
                 g.paste(im, g.emoji(e, int(rh*0.66)), cx_ + 34, y, alpha=0.35 if o else 1)
                 g.paste(im, g.T(nm, fs, (120, 110, 140) if o else g.WHITE, 0, maxw=cw - 120), cx_ + 66, y, anchor="l")
-                if o: g.paste(im, g.T(f"#{place[k]}", int(fs*0.85), g.RED, 0), cx_ + cw - 14, y, anchor="r")
-        if 2 <= n_alive <= 3 and st < END: g.paste(im, g.T(f"LAST {n_alive}!", 90, g.RED, 10), CX, CY + R + 70 if not vert else CY + R + 70, 1 + 0.06*math.sin(t*12))
+                if o: g.paste(im, g.T(f"#{place[k]}", int(fs*0.8), g.RED, 0), cx_ + cw - 14, y, anchor="r")
+        if 2 <= n_alive <= 3 and st < END: g.paste(im, g.T(f"LAST {n_alive}!", 90, g.RED, 10), CX, CY + R + 70 if not vert else CY + R - 110, 1 + 0.06*math.sin(t*12))
         if t < T0 + 0.6:
             a = 1 - g.ease((t - T0)/0.6); im.alpha_composite(Image.new("RGBA", (W, H), (8, 6, 20, int(170*a))))
             g.paste(im, g.T(head1, 110, g.WHITE, 12, maxw=W - 80), W/2, H/2 - 210, g.back((t - 0.1)/0.25), alpha=a)
