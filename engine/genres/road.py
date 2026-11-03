@@ -334,7 +334,7 @@ def build(spec, fmt):
     for i, sc in enumerate(scenes):
         rb = sc["type"].startswith("roundabout")                     # world units are zoomed by Z on screen
         Z = (1.0 if vert else 0.62) if rb else (1.3 if vert else 0.85); WW, HW = W/Z, H/Z
-        cx, cy = (WW/2, HW*(0.66 if rb else 0.70)) if vert else (WW*0.71, HW/2)
+        cx, cy = (WW/2, HW*sc.get("cy", 0.66 if rb else 0.70)) if vert else (WW*0.71, HW/2)   # optional "cy": move the junction down so a sign clears the card
         draw, actors = scene_actors(sc["type"], cx, cy, WW, HW)
         order = sc.get("order") or (["car", "you"] if sc.get("answer") == "you" else ["you", "car"])
         bg = Image.new("RGB", (W*S, H*S), PAVE); d = ImageDraw.Draw(bg); k = S*Z
@@ -393,7 +393,7 @@ def build(spec, fmt):
             for n, (pa, st) in p["actors"].items():
                 if n not in p["order"]: continue
                 j = p["order"].index(n); x, y, _ = at(pa, S_[n]); off = 120*Z/1.3 + 50
-                by = y - off if (y - off) > p["cardh"] + 40 else y + off
+                by = y - off if (y - off) > p["cardh"] + 40 and not (n == "car" and sc["type"] == "crossroads_stop_right") else y + off   # keep the STOP sign visible
                 bdg = badge(ORD[j] if len(p["order"]) > 2 or j else "GOES 1ST", OCOL[j] if j < 3 else RED)
                 if len(p["order"]) == 2 and j == 1: bdg = badge("WAITS", RED)
                 g.paste(im, bdg, min(max(x, bdg.width/2 + 20), W - bdg.width/2 - 20), by, kk)

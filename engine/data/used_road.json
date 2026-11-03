@@ -1,1 +1,11 @@
-[]
+[
+ {
+  "date": "2026-11-06",
+  "type": "crossroads_stop_right",
+  "place": "Quiet crossroads in Portugal",
+  "lines": [
+   "Car on right: STOP sign.",
+   "It got there first."
+  ]
+ }
+]
