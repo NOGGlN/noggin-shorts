@@ -430,5 +430,275 @@
   "gen": "d1103_yolk",
   "question": "d1103_yolk: TRAP QUESTION! -> Neither",
   "answer": "Neither"
+ },
+ {
+  "date": "2026-11-07",
+  "gen": "long1107_r1q1",
+  "question": "long r1: How many legs does a spider have? -> 8",
+  "answer": "8"
+ },
+ {
+  "date": "2026-11-07",
+  "gen": "long1107_r1q2",
+  "question": "long r1: Which is the biggest animal alive today? -> Blue whale",
+  "answer": "Blue whale"
+ },
+ {
+  "date": "2026-11-07",
+  "gen": "long1107_r1q3",
+  "question": "long r1: Guacamole is made mainly from which fruit? -> Avocado",
+  "answer": "Avocado"
+ },
+ {
+  "date": "2026-11-07",
+  "gen": "long1107_r1q4",
+  "question": "long r1: What is a baby kangaroo called? -> A joey",
+  "answer": "A joey"
+ },
+ {
+  "date": "2026-11-07",
+  "gen": "long1107_r1q5",
+  "question": "long r1: Which is the fastest animal on land? -> Cheetah",
+  "answer": "Cheetah"
+ },
+ {
+  "date": "2026-11-07",
+  "gen": "long1107_r1q6",
+  "question": "long r1: Which nut is the main ingredient of marzipan? -> Almond",
+  "answer": "Almond"
+ },
+ {
+  "date": "2026-11-07",
+  "gen": "long1107_r1q7",
+  "question": "long r1: Which bird can fly backwards? -> Hummingbird",
+  "answer": "Hummingbird"
+ },
+ {
+  "date": "2026-11-07",
+  "gen": "long1107_r1q8",
+  "question": "long r1: Pizza as we know it was born in which Italian city? -> Naples",
+  "answer": "Naples"
+ },
+ {
+  "date": "2026-11-07",
+  "gen": "long1107_r1q9",
+  "question": "long r1: What is sushi rice flavoured with? -> Rice vinegar",
+  "answer": "Rice vinegar"
+ },
+ {
+  "date": "2026-11-07",
+  "gen": "long1107_r1q10",
+  "question": "long r1: What colour is a polar bear's skin? -> Black",
+  "answer": "Black"
+ },
+ {
+  "date": "2026-11-07",
+  "gen": "long1107_r2q1",
+  "question": "long r2: In chess, which piece can only move diagonally? -> Bishop",
+  "answer": "Bishop"
+ },
+ {
+  "date": "2026-11-07",
+  "gen": "long1107_r2q2",
+  "question": "long r2: How many dots are on a normal six-sided dice in total? -> 21",
+  "answer": "21"
+ },
+ {
+  "date": "2026-11-07",
+  "gen": "long1107_r2q3",
+  "question": "long r2: In Tetris, how many squares make up each piece? -> 4",
+  "answer": "4"
+ },
+ {
+  "date": "2026-11-07",
+  "gen": "long1107_r2q4",
+  "question": "long r2: What does www stand for? -> World Wide Web",
+  "answer": "World Wide Web"
+ },
+ {
+  "date": "2026-11-07",
+  "gen": "long1107_r2q5",
+  "question": "long r2: In Minecraft, what is the weakest pickaxe that can mine diamonds? -> Iron",
+  "answer": "Iron"
+ },
+ {
+  "date": "2026-11-07",
+  "gen": "long1107_r2q6",
+  "question": "long r2: On a Windows PC, which shortcut copies text? -> Ctrl + C",
+  "answer": "Ctrl + C"
+ },
+ {
+  "date": "2026-11-07",
+  "gen": "long1107_r2q7",
+  "question": "long r2: The word emoji comes from which language? -> Japanese",
+  "answer": "Japanese"
+ },
+ {
+  "date": "2026-11-07",
+  "gen": "long1107_r2q8",
+  "question": "long r2: How many bits are in one byte? -> 8",
+  "answer": "8"
+ },
+ {
+  "date": "2026-11-07",
+  "gen": "long1107_r2q9",
+  "question": "long r2: What does URL stand for? -> Uniform Resource Locator",
+  "answer": "Uniform Resource Locator"
+ },
+ {
+  "date": "2026-11-07",
+  "gen": "long1107_r2q10",
+  "question": "long r2: QWERTY keyboards are named after what? -> The first six letters on the top row",
+  "answer": "The first six letters on the top row"
+ },
+ {
+  "date": "2026-11-07",
+  "gen": "long1107_r3q1",
+  "question": "long r3: Which is the hottest planet in our solar system? -> Venus",
+  "answer": "Venus"
+ },
+ {
+  "date": "2026-11-07",
+  "gen": "long1107_r3q2",
+  "question": "long r3: What is the chemical symbol for gold? -> Au",
+  "answer": "Au"
+ },
+ {
+  "date": "2026-11-07",
+  "gen": "long1107_r3q3",
+  "question": "long r3: How many bones does an adult human have? -> 206",
+  "answer": "206"
+ },
+ {
+  "date": "2026-11-07",
+  "gen": "long1107_r3q4",
+  "question": "long r3: Which gas do plants take in from the air? -> Carbon dioxide",
+  "answer": "Carbon dioxide"
+ },
+ {
+  "date": "2026-11-07",
+  "gen": "long1107_r3q5",
+  "question": "long r3: What is the largest organ of the human body? -> Skin",
+  "answer": "Skin"
+ },
+ {
+  "date": "2026-11-07",
+  "gen": "long1107_r3q6",
+  "question": "long r3: At sea level, water boils at what temperature? -> 100 °C",
+  "answer": "100 °C"
+ },
+ {
+  "date": "2026-11-07",
+  "gen": "long1107_r3q7",
+  "question": "long r3: Which planet spins on its side? -> Uranus",
+  "answer": "Uranus"
+ },
+ {
+  "date": "2026-11-07",
+  "gen": "long1107_r3q8",
+  "question": "long r3: What is the hardest natural material? -> Diamond",
+  "answer": "Diamond"
+ },
+ {
+  "date": "2026-11-07",
+  "gen": "long1107_r3q9",
+  "question": "long r3: What is the closest star to Earth? -> The Sun",
+  "answer": "The Sun"
+ },
+ {
+  "date": "2026-11-07",
+  "gen": "long1107_r3q10",
+  "question": "long r3: Which blood type can be given to almost anyone? -> O negative",
+  "answer": "O negative"
+ },
+ {
+  "date": "2026-11-07",
+  "gen": "long1107_r4q1",
+  "question": "long r4: What is the capital of Australia? -> Canberra",
+  "answer": "Canberra"
+ },
+ {
+  "date": "2026-11-07",
+  "gen": "long1107_r4q2",
+  "question": "long r4: Which is the largest ocean? -> Pacific",
+  "answer": "Pacific"
+ },
+ {
+  "date": "2026-11-07",
+  "gen": "long1107_r4q3",
+  "question": "long r4: In which country is Machu Picchu? -> Peru",
+  "answer": "Peru"
+ },
+ {
+  "date": "2026-11-07",
+  "gen": "long1107_r4q4",
+  "question": "long r4: Mount Everest sits on the border of Nepal and which country? -> China",
+  "answer": "China"
+ },
+ {
+  "date": "2026-11-07",
+  "gen": "long1107_r4q5",
+  "question": "long r4: Marrakesh is a city in which country? -> Morocco",
+  "answer": "Morocco"
+ },
+ {
+  "date": "2026-11-07",
+  "gen": "long1107_r4q6",
+  "question": "long r4: Which river flows through Vienna, Bratislava and Budapest? -> Danube",
+  "answer": "Danube"
+ },
+ {
+  "date": "2026-11-07",
+  "gen": "long1107_r4q7",
+  "question": "long r4: What is the currency of Japan? -> Yen",
+  "answer": "Yen"
+ },
+ {
+  "date": "2026-11-07",
+  "gen": "long1107_r4q8",
+  "question": "long r4: Which country has the longest coastline? -> Canada",
+  "answer": "Canada"
+ },
+ {
+  "date": "2026-11-07",
+  "gen": "long1107_r4q9",
+  "question": "long r4: Lisbon sits on which river? -> Tagus",
+  "answer": "Tagus"
+ },
+ {
+  "date": "2026-11-07",
+  "gen": "long1107_r4q10",
+  "question": "long r4: Which is the tallest waterfall in the world? -> Angel Falls",
+  "answer": "Angel Falls"
+ },
+ {
+  "date": "2026-11-07",
+  "gen": "long1107_r5q1",
+  "question": "long r5: What is the largest desert on Earth? -> Antarctica",
+  "answer": "Antarctica"
+ },
+ {
+  "date": "2026-11-07",
+  "gen": "long1107_r5q2",
+  "question": "long r5: Which planet has a day that is longer than its year? -> Venus",
+  "answer": "Venus"
+ },
+ {
+  "date": "2026-11-07",
+  "gen": "long1107_r5q3",
+  "question": "long r5: Which letter is not in the name of any US state? -> Q",
+  "answer": "Q"
+ },
+ {
+  "date": "2026-11-07",
+  "gen": "long1107_r5q4",
+  "question": "long r5: What is a group of flamingos called? -> A flamboyance",
+  "answer": "A flamboyance"
+ },
+ {
+  "date": "2026-11-07",
+  "gen": "long1107_r5q5",
+  "question": "long r5: What colour is a plane's black box? -> Bright orange",
+  "answer": "Bright orange"
  }
 ]

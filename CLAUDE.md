@@ -197,3 +197,40 @@ No background music (owner's rule): only the synthesized sound effects the engin
    "category": "ENTERTAINMENT", "madeForKids": false, "isAiGeneratedContent": false}, plus "autoPublish": true, "draft": false,
    "descendants": [], "firstCommentText": "", "hasNotReadNotes": false, "mediaAltText": [], "shortener": false, "smartLinkData": {"ids": []}.
 6. **Report:** the date, kind, format, title, length, and posts used / 18 that month.
+
+
+## Long video job - run by the "Noggin long video" scheduled task (Saturdays)
+OWNER'S PLAN: every month = 4 long videos (Saturdays) + 10 YouTube Shorts (Monday news, Wednesday + Friday formats), all at 16:00 Lisbon.
+Metricool cap: 18 posts per calendar month across all networks (non-draft, non-ERROR). WHY: YouTube growth first; long videos earn far
+more per view than Shorts and build the watch hours YouTube needs for payment.
+Engine: `engine/make_long.py` (1920x1080, 30 fps, H.264 `-preset veryfast` + AAC; renders in parallel chunks on all cores, then
+concatenates and muxes the audio). Reuses `genres/gcommon.py` (fonts, emoji, easing, Mix sound) and `mascot.py` (Noggin).
+Each episode is a data file `engine/long/long_YYYY_MM_DD.py`: TITLE, HOOK (2 description lines), TAGS,
+ROUNDS = [dict(name, topic, level, timer (5-7 s), color, boss=True for the last one, questions=[dict(q, opts (4), a, fact, emojis)])].
+Sample/first episode: `long/long_2026_11_07.py` (45 questions, 4 rounds of 10 + a 5-question final boss, 8:45).
+- **OWNER'S RULE: the viewer just plays.** Noggin never competes with the viewer: no "beat Noggin", no Noggin score, no Noggin guessing or
+  answering, no "Noggin vs you". Noggin is only a friendly host/decoration (waving, cheering, in a corner). The only score is the viewer's own.
+- Structure the engine draws: hook in the first seconds ("45 QUESTIONS / EASY TO IMPOSSIBLE / GRAB A PEN AND KEEP SCORE"), a card per round,
+  each question = 1 s entrance + countdown + reveal (correct option green with a tick, the others dimmed, "+1 GOT IT?", one-line fun fact),
+  a "how many out of N / running total" check after every round, the final boss round, a score ladder + "COMMENT YOUR SCORE BELOW",
+  then a 10-second end screen inviting viewers to subscribe. Progress bar + "KEEP SCORE" prompt on every question. No music: a quiet
+  synthesized ambient bed, ticks, whooshes, dings. Chapters (one per round) are computed and written into the description.
+- 7-10 minutes (aim ~8-9): duration = 6 + per round 3.5 + questions*(1 + timer + 3.4; boss 4.0) + 3.5, + 18 s outro/end screen.
+- Content: questions must be NEW (make_long refuses ones already in data/used_questions.json; also check published titles). Every fact true
+  and checked; skip anything uncertain. No real people, brand logos, politics, religion, war or anything about children. No emoji inside text.
+1. **Slot + budget:** Metricool `getScheduledPosts` (ranges of max 3 days). Stop if the Saturday already has a non-draft, non-ERROR YouTube post
+   at 16:00, if the month's non-draft, non-ERROR posts + 1 > 18, or if the month already has 4 YouTube posts with type "video".
+2. **Write** `engine/long/long_YYYY_MM_DD.py` (pick a format: 5 rounds/5 categories, true or false, which is bigger, spot the mistake...;
+   the engine draws 4-option multiple choice).
+3. **Check + preview:** `cd engine && python3 make_long.py long/long_YYYY_MM_DD.py YYYY-MM-DD --stills` -> open `/tmp/long_check_YYYY-MM-DD.jpg`;
+   then `--preview 45` -> `/tmp/long_preview_YYYY-MM-DD.mp4` (960x540 with sound); look at a few frames.
+4. **Render:** same command without flags (~3-4 min on 4 cores) -> `videos/YYYY-MM-DD/long-video.mp4` + `long_manifest.json`, questions
+   appended to used_questions.json. Check duration 7:00-10:00 with ffprobe. Keep the file under ~95 MB (GitHub limit 100 MB): if bigger,
+   re-render with `--crf 27`.
+5. **Publish:** commit, fetch + rebase, `git push origin HEAD:main`. Metricool `createScheduledPost` (blogId 7672444): media [manifest url],
+   providers [{"network": "youtube"}] ONLY, publicationDate {dateTime: "YYYY-MM-DDT16:00:00", timezone: "Europe/Lisbon"}, text = manifest
+   description, "youtubeData": {"title": title (under 70 chars, 1 emoji, NO #shorts), "type": "video", "privacy": "public", "tags": manifest
+   tags, "category": "ENTERTAINMENT", "madeForKids": false, "isAiGeneratedContent": false}, plus "autoPublish": true, "draft": false,
+   "descendants": [], "firstCommentText": "", "hasNotReadNotes": false, "mediaAltText": [], "shortener": false, "smartLinkData": {"ids": []}.
+   Re-check the slot just before scheduling. If the upload fails for size, re-render with `--crf 27`, push, retry once; then stop and report.
+6. **Report:** title, format, duration, long videos used / 4 and posts used / 18 that month.
