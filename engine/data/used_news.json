@@ -340,5 +340,47 @@
   "real": true,
   "link": "https://www.nike.com/launch/t/blazy-tie-dye-dark-sulfur-and-sail",
   "kind": "brief"
+ },
+ {
+  "date": "2026-11-09",
+  "text": "NASA just revealed its newest experimental plane: the X-70 Fractal.",
+  "real": true,
+  "link": "https://www.nasa.gov/news-release/nasa-announces-x-70-experimental-aircraft-to-advance-flight-research/",
+  "kind": "story"
+ },
+ {
+  "date": "2026-11-09",
+  "text": "Two NASA spacecraft are using Earth as a slingshot to get to Mars.",
+  "real": true,
+  "link": "https://science.nasa.gov/blogs/escapade/2026/11/02/nasas-twin-escapade-spacecraft-to-slingshot-past-earth-on-way-to-mars/",
+  "kind": "story"
+ },
+ {
+  "date": "2026-11-09",
+  "text": "A runner solved four Rubik's cubes while running a mile, in just over 5 minutes.",
+  "real": true,
+  "link": "https://www.upi.com/Odd_News/2026/11/06/guinness-world-records-puzzle-cube-mile/9871793989473/",
+  "kind": "story"
+ },
+ {
+  "date": "2026-11-09",
+  "text": "NASA's Swift telescope says goodbye",
+  "real": true,
+  "link": "https://science.nasa.gov/blogs/swift/2026/11/02/nasas-swift-observatory-to-re-enter-atmosphere/",
+  "kind": "brief"
+ },
+ {
+  "date": "2026-11-09",
+  "text": "The Air Jordan 6 'White Infrared' is back",
+  "real": true,
+  "link": "https://www.nike.com/launch/t/air-jordan-6-white-infrared-white-and-light-crimson",
+  "kind": "brief"
+ },
+ {
+  "date": "2026-11-09",
+  "text": "The ISS gets its 8th and final new solar array",
+  "real": true,
+  "link": "https://www.nasa.gov/blogs/spacestation/2026/11/05/spacewalkers-install-final-roll-out-solar-array/",
+  "kind": "brief"
  }
 ]
