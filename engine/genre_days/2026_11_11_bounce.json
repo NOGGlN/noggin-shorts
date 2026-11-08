@@ -1,0 +1,14 @@
+{
+ "kind": "bounce",
+ "format": "short",
+ "id": "bounce-2026-11-11-neon",
+ "palette": "neon",
+ "start": [-110, -90],
+ "speed": 640,
+ "gravity": 1080,
+ "hue_step": 0.041,
+ "hook": ["EVERY BOUNCE IT GETS BIGGER", "GUESS THE BOUNCE COUNT"],
+ "end_text": "IT FILLED THE CIRCLE",
+ "title": "Every bounce it gets BIGGER 😳 #shorts",
+ "description": "One ball. Every bounce it grows. How many bounces until it fills the whole circle?\nComment your guess 👇\n\n#satisfying #bounce #oddlysatisfying #noggin #shorts"
+}
