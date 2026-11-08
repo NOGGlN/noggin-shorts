@@ -239,7 +239,7 @@ def render(ed, out, stills=False):
     with wave.open(wav, "wb") as w: w.setnchannels(1); w.setsampwidth(2); w.setframerate(sr); w.writeframes(mix.tobytes())
     tmp = out.replace(".mp4", ".tmp.mp4")
     p = subprocess.Popen(["ffmpeg", "-y", "-loglevel", "error", "-f", "rawvideo", "-pix_fmt", "rgb24", "-s", f"{W}x{H}", "-r", str(FPS), "-i", "-",
-                          "-i", wav, "-c:v", "libx264", "-preset", "medium", "-crf", "21", "-maxrate", "8M", "-bufsize", "16M", "-pix_fmt", "yuv420p",
+                          "-i", wav, "-c:v", "libx264", "-preset", "medium", "-crf", os.environ.get("NEWS6_CRF", "21"), "-maxrate", os.environ.get("NEWS6_MAXRATE", "8M"), "-bufsize", os.environ.get("NEWS6_BUFSIZE", "16M"), "-pix_fmt", "yuv420p",
                           "-c:a", "aac", "-b:a", "192k", "-ar", "44100", "-shortest", "-movflags", "+faststart", tmp], stdin=subprocess.PIPE)
     for i in range(int(dur*FPS)): p.stdin.write(frame(i/FPS).tobytes())
     p.stdin.close(); p.wait(); os.remove(wav)
