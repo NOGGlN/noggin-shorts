@@ -1,0 +1,41 @@
+{
+ "kind": "wyr",
+ "format": "short",
+ "id": "wyr-2026-11-13",
+ "title": "Pick fast. Noggin already chose 😬 #shorts",
+ "description": "4 tough choices, no time to think. Did you pick the same as Noggin?\nComment your pick 👇\n\n#wouldyourather #thisorthat #noggin #shorts",
+ "questions": [
+  {
+   "a": ["FLY BUT ONLY", "1 METRE HIGH"],
+   "ae": "🪽",
+   "b": ["TELEPORT BUT", "ONLY 10 METRES"],
+   "be": "✨",
+   "pick": 1,
+   "why": "NEVER WALK TO THE FRIDGE"
+  },
+  {
+   "a": ["UNLIMITED", "FREE SNACKS"],
+   "ae": "🍿",
+   "b": ["UNLIMITED", "FREE GAMES"],
+   "be": "🎮",
+   "pick": 0,
+   "why": "GAMING ON EMPTY IS PAIN"
+  },
+  {
+   "a": ["KNOW EVERY", "SONG LYRIC"],
+   "ae": "🎤",
+   "b": ["PLAY ANY SONG", "ON PIANO"],
+   "be": "🎹",
+   "pick": 1,
+   "why": "INSTANT MAIN CHARACTER"
+  },
+  {
+   "a": ["LIVE ON", "THE MOON"],
+   "ae": "🌕",
+   "b": ["LIVE UNDER", "THE OCEAN"],
+   "be": "🐠",
+   "pick": 1,
+   "why": "OCEAN VIEWS ALL DAY"
+  }
+ ]
+}
