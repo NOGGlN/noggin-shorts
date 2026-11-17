@@ -7,5 +7,14 @@
    "Car on right: STOP sign.",
    "It got there first."
   ]
+ },
+ {
+  "date": "2026-11-20",
+  "type": "roundabout_enter",
+  "place": "Roundabout in Portugal",
+  "lines": [
+   "Car already going round.",
+   "It's on your LEFT."
+  ]
  }
 ]

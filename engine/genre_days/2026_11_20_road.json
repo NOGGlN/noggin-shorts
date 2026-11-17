@@ -1,0 +1,34 @@
+{
+ "kind": "road",
+ "format": "short",
+ "id": "road-2026-11-20",
+ "title": "It's on your LEFT. Do you still wait? 🔄 #shorts",
+ "description": "You're entering a roundabout. A car already going round is coming from your left. Who goes first?\nComment A, B, C or D 👇\n\n#roadrules #roundabout #driving #drivingtest #quiz #noggin #shorts",
+ "scenes": [
+  {
+   "type": "roundabout_enter",
+   "place": "Roundabout in Portugal",
+   "lines": [
+    "Car already going round.",
+    "It's on your LEFT."
+   ],
+   "question": "Who goes first?",
+   "options": [
+    "You, the car is on your left",
+    "The car, it's on the roundabout",
+    "You, you're going straight on",
+    "Whoever reaches the line first"
+   ],
+   "correct": 1,
+   "order": ["car", "you"],
+   "why": "Entering a roundabout, you give way to cars already on it. The right-hand rule doesn't apply here.",
+   "compare": {
+    "same": ["Spain", "Germany", "Italy", "USA"],
+    "different": [
+     ["UK", "They drive on the left, so you give way to cars coming from your right."],
+     ["France", "At a few old ones with no sign, like the Arc de Triomphe, cars entering go first."]
+    ]
+   }
+  }
+ ]
+}
